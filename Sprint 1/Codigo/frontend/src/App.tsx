@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
-type Pantalla = 'sedes' | 'catalogo'
+type Pantalla = 'sedes' | 'catalogo' | 'carrito' | 'confirmacion'
 
 type Producto = {
   id: number
@@ -49,39 +49,55 @@ const productos: Producto[] = [
   },
 ]
 
+const formatoPrecio = (precio: number) => `S/ ${precio.toFixed(2)}`
+
 function App() {
   const [pantalla, setPantalla] = useState<Pantalla>('sedes')
   const [sede, setSede] = useState('San Martín de Porres')
   const [cantidades, setCantidades] = useState<Record<number, number>>({})
 
   const cambiarCantidad = (id: number, cambio: number) => {
-    setCantidades((anteriores) => ({
-      ...anteriores,
-      [id]: Math.max(0, (anteriores[id] || 0) + cambio),
+    setCantidades((actuales) => ({
+      ...actuales,
+      [id]: Math.max(0, (actuales[id] || 0) + cambio),
     }))
   }
-
-  const totalUnidades = productos.reduce(
-    (suma, producto) => suma + (cantidades[producto.id] || 0), 0,
-  )
-
-  const totalPagar = productos.reduce(
-    (suma, producto) => suma + producto.precio * (cantidades[producto.id] || 0), 0,
-  )
 
   const elegirSede = (nuevaSede: string) => {
     if (nuevaSede !== sede) setCantidades({})
     setSede(nuevaSede)
   }
 
-  const verCarrito = () => {
-    const detalle = productos
-      .filter((producto) => (cantidades[producto.id] || 0) > 0)
-      .map((producto) => `${cantidades[producto.id]} x ${producto.nombre}`)
-      .join('\n')
+  const productosElegidos = productos.filter((producto) => (cantidades[producto.id] || 0) > 0)
+  const totalUnidades = productos.reduce(
+    (suma, producto) => suma + (cantidades[producto.id] || 0), 0,
+  )
+  const totalPagar = productos.reduce(
+    (suma, producto) => suma + producto.precio * (cantidades[producto.id] || 0), 0,
+  )
 
-    alert(`Tu pedido para ${sede}:\n\n${detalle}\n\nTotal: S/ ${totalPagar.toFixed(2)}`)
-  }
+  // Componente reutilizable para modificar cantidades en catálogo y carrito.
+  const controlesCantidad = (producto: Producto) => (
+    <div className="control-cantidad">
+      <button
+        type="button"
+        aria-label={`Quitar una unidad de ${producto.nombre}`}
+        onClick={() => cambiarCantidad(producto.id, -1)}
+      >
+        −
+      </button>
+      <span aria-label={`Cantidad: ${cantidades[producto.id] || 0}`}>
+        {cantidades[producto.id] || 0}
+      </span>
+      <button
+        type="button"
+        aria-label={`Agregar una unidad de ${producto.nombre}`}
+        onClick={() => cambiarCantidad(producto.id, 1)}
+      >
+        +
+      </button>
+    </div>
+  )
 
   if (pantalla === 'sedes') {
     return (
@@ -120,9 +136,164 @@ function App() {
         </main>
 
         <footer className="pie-sedes">
-          <button type="button" className="boton-principal" onClick={() => setPantalla('catalogo')}>
+          <button
+            type="button"
+            className="boton-principal"
+            onClick={() => setPantalla('catalogo')}
+          >
             Continuar
           </button>
+        </footer>
+      </div>
+    )
+  }
+
+  if (pantalla === 'catalogo') {
+    return (
+      <div className="aplicacion">
+        <header className="cabecera-catalogo">
+          <div className="barra-catalogo">
+            <button
+              type="button"
+              className="boton-volver"
+              aria-label="Volver a seleccionar sede"
+              onClick={() => setPantalla('sedes')}
+            >
+              ←
+            </button>
+            <span>Sede: {sede}</span>
+          </div>
+        </header>
+
+        <main className="contenido contenido-catalogo">
+          <h2>Menú de hoy</h2>
+          <div className="catalogo-grid">
+            {productos.map((producto) => {
+              const cantidad = cantidades[producto.id] || 0
+              return (
+                <article
+                  key={producto.id}
+                  className={`producto-card ${cantidad > 0 ? 'producto-seleccionado' : ''}`}
+                >
+                  <img className="producto-imagen" src={producto.imagen} alt={producto.nombre} />
+                  <div className="producto-info">
+                    <h3>{producto.nombre}</h3>
+                    <p>{producto.descripcion}</p>
+                    <strong>{formatoPrecio(producto.precio)}</strong>
+                  </div>
+                  <div className="producto-acciones">
+                    {cantidad === 0 ? (
+                      <button
+                        type="button"
+                        className="boton-agregar"
+                        onClick={() => cambiarCantidad(producto.id, 1)}
+                      >
+                        Agregar
+                      </button>
+                    ) : controlesCantidad(producto)}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </main>
+
+        <footer className="barra-carrito">
+          <button
+            type="button"
+            className="boton-carrito"
+            disabled={totalUnidades === 0}
+            onClick={() => setPantalla('carrito')}
+          >
+            <span className="texto-carrito">▢ Ver carrito ({totalUnidades})</span>
+            <strong>{formatoPrecio(totalPagar)}</strong>
+          </button>
+        </footer>
+      </div>
+    )
+  }
+
+  if (pantalla === 'carrito') {
+    return (
+      <div className="aplicacion">
+        <header className="cabecera-catalogo">
+          <div className="barra-catalogo">
+            <button
+              type="button"
+              className="boton-volver"
+              aria-label="Volver al catálogo"
+              onClick={() => setPantalla('catalogo')}
+            >
+              ←
+            </button>
+            <span>Tu pedido</span>
+          </div>
+        </header>
+
+        <main className="contenido contenido-carrito">
+          <h2>Resumen del carrito</h2>
+          {productosElegidos.length === 0 ? (
+            <section className="carrito-vacio">
+              <p>Tu carrito está vacío.</p>
+              <button
+                type="button"
+                className="boton-secundario"
+                onClick={() => setPantalla('catalogo')}
+              >
+                Explorar productos
+              </button>
+            </section>
+          ) : (
+            <div className="distribucion-carrito">
+              <section className="lista-carrito" aria-label="Productos del carrito">
+                {productosElegidos.map((producto) => {
+                  const cantidad = cantidades[producto.id]
+                  return (
+                    <article className="item-carrito" key={producto.id}>
+                      <div className="item-carrito-encabezado">
+                        <h3>{producto.nombre}</h3>
+                        <strong>{formatoPrecio(producto.precio * cantidad)}</strong>
+                      </div>
+                      <div className="item-carrito-detalle">
+                        <span>Unidad: {formatoPrecio(producto.precio)}</span>
+                        {controlesCantidad(producto)}
+                      </div>
+                    </article>
+                  )
+                })}
+              </section>
+              <section className="tarjeta-totales" aria-label="Totales de compra">
+                <div className="fila-subtotal">
+                  <span>Subtotal</span>
+                  <span>{formatoPrecio(totalPagar)}</span>
+                </div>
+                <div className="fila-total">
+                  <strong>Total</strong>
+                  <strong>{formatoPrecio(totalPagar)}</strong>
+                </div>
+              </section>
+            </div>
+          )}
+        </main>
+
+        <footer className="pie-compra">
+          <div className="botones-pie">
+            <button
+              type="button"
+              className="boton-secundario"
+              onClick={() => setPantalla('catalogo')}
+            >
+              Seguir comprando
+            </button>
+            <button
+              type="button"
+              className="boton-principal"
+              disabled={totalUnidades === 0}
+              onClick={() => setPantalla('confirmacion')}
+            >
+              Continuar
+            </button>
+          </div>
         </footer>
       </div>
     )
@@ -135,84 +306,52 @@ function App() {
           <button
             type="button"
             className="boton-volver"
-            aria-label="Volver a seleccionar sede"
-            onClick={() => setPantalla('sedes')}
+            aria-label="Volver al carrito"
+            onClick={() => setPantalla('carrito')}
           >
             ←
           </button>
-          <span>Sede: {sede}</span>
+          <span>Revisa tu pedido</span>
         </div>
       </header>
 
-      <main className="contenido contenido-catalogo">
-        <h2>Menú de hoy</h2>
-
-        <div className="catalogo-grid">
-          {productos.map((producto) => {
-            const cantidad = cantidades[producto.id] || 0
-
-            return (
-              <article
-                key={producto.id}
-                className={`producto-card ${cantidad > 0 ? 'producto-seleccionado' : ''}`}
-              >
-                <img
-                  className="producto-imagen"
-                  src={producto.imagen}
-                  alt={producto.nombre}
-                />
-                <div className="producto-info">
-                  <h3>{producto.nombre}</h3>
-                  <p>{producto.descripcion}</p>
-                  <strong>S/ {producto.precio.toFixed(2)}</strong>
-                </div>
-                <div className="producto-acciones">
-                  {cantidad === 0 ? (
-                    <button
-                      className="boton-agregar"
-                      type="button"
-                      onClick={() => cambiarCantidad(producto.id, 1)}
-                    >
-                      Agregar
-                    </button>
-                  ) : (
-                    <div className="control-cantidad">
-                      <button
-                        type="button"
-                        aria-label={`Quitar ${producto.nombre}`}
-                        onClick={() => cambiarCantidad(producto.id, -1)}
-                      >−</button>
-                      <span>{cantidad}</span>
-                      <button
-                        type="button"
-                        aria-label={`Agregar ${producto.nombre}`}
-                        onClick={() => cambiarCantidad(producto.id, 1)}
-                      >+</button>
-                    </div>
-                  )}
-                </div>
-              </article>
-            )
-          })}
-        </div>
+      <main className="contenido contenido-confirmacion">
+        <h2>Verificación final</h2>
+        <section className="tarjeta-confirmacion" aria-label="Resumen final del pedido">
+          <div className="bloque-sede">
+            <span className="etiqueta-resumen">SEDE DE RECOJO:</span>
+            <strong><span aria-hidden="true">⌖</span> {sede}</strong>
+          </div>
+          <div className="bloque-productos-resumen">
+            <span className="etiqueta-resumen">DETALLE DEL PEDIDO:</span>
+            {productosElegidos.map((producto) => (
+              <div className="fila-producto-resumen" key={producto.id}>
+                <span><strong>{cantidades[producto.id]}x</strong> {producto.nombre}</span>
+                <span>{formatoPrecio(producto.precio * cantidades[producto.id])}</span>
+              </div>
+            ))}
+          </div>
+          <div className="fila-total-final">
+            <strong>Total a pagar</strong>
+            <strong>{formatoPrecio(totalPagar)}</strong>
+          </div>
+        </section>
+        <p className="aviso-confirmacion">
+          <span aria-hidden="true">ⓘ</span>
+          Verifica que la información sea correcta antes de continuar al pago.
+        </p>
       </main>
 
-      <footer className="barra-carrito">
-        <button
-          className="boton-carrito"
-          type="button"
-          disabled={totalUnidades === 0}
-          onClick={verCarrito}
-        >
-          <span className="texto-carrito">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <rect x="4" y="8" width="16" height="13" rx="2" />
-              <path d="M8 9V6a4 4 0 0 1 8 0v3" />
-            </svg>
-            Ver carrito ({totalUnidades})
-          </span>
-          <strong>S/ {totalPagar.toFixed(2)}</strong>
-        </button>
+      <footer className="pie-compra">
+        <div className="botones-pie">
+          <button
+            type="button"
+            className="boton-principal"
+            onClick={() => alert('La navegación al pago se implementará en la T01.5. Este prototipo todavía no cobra ni registra pedidos.')}
+          >
+            ▣ Continuar al pago
+          </button>
+        </div>
       </footer>
     </div>
   )

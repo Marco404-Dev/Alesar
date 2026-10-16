@@ -329,3 +329,239 @@
   .barra-carrito { padding-left: 16px; padding-right: 16px; }
   .boton-carrito { padding: 15px 16px; }
 }
+
+/* T01.4: Pantallas de carrito y verificación final */
+.contenido-carrito,
+.contenido-confirmacion {
+  padding: 20px 20px 32px;
+}
+
+.contenido-carrito h2,
+.contenido-confirmacion h2 {
+  margin-bottom: 18px;
+  font-size: 23px;
+}
+
+.distribucion-carrito {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+.lista-carrito {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.item-carrito,
+.tarjeta-totales,
+.tarjeta-confirmacion,
+.carrito-vacio {
+  background: #fff;
+  border: 1px solid #ead8c7;
+  border-radius: 14px;
+}
+
+.item-carrito {
+  padding: 16px;
+  min-height: 93px;
+}
+
+.item-carrito-encabezado,
+.item-carrito-detalle,
+.fila-subtotal,
+.fila-total,
+.fila-producto-resumen,
+.fila-total-final {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item-carrito-encabezado h3 {
+  color: #30231e;
+  font-size: 15px;
+  margin: 0;
+}
+
+.item-carrito-encabezado strong {
+  color: #30231e;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.item-carrito-detalle {
+  margin-top: 14px;
+  color: #756b66;
+  font-size: 12px;
+}
+
+.item-carrito-detalle .control-cantidad {
+  flex-shrink: 0;
+}
+
+.tarjeta-totales {
+  padding: 16px;
+}
+
+.fila-subtotal {
+  padding-bottom: 14px;
+  color: #756b66;
+  font-size: 13px;
+  border-bottom: 1px solid #ead8c7;
+}
+
+.fila-total {
+  padding-top: 14px;
+  font-size: 15px;
+  color: #30231e;
+}
+
+.fila-total strong:last-child,
+.fila-total-final strong:last-child {
+  color: #f26921;
+  font-size: 23px;
+  white-space: nowrap;
+}
+
+.carrito-vacio {
+  padding: 28px 18px;
+  text-align: center;
+  color: #756b66;
+}
+
+.carrito-vacio .boton-secundario { margin-top: 12px; }
+
+/* Botones al pie de carrito y verificación */
+.pie-compra {
+  width: 100%;
+  padding: 12px 20px 18px;
+  background: #fff;
+  border-top: 1px solid #ead8c7;
+}
+
+.botones-pie {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.botones-pie .boton-principal,
+.botones-pie .boton-secundario {
+  max-width: none;
+  width: 100%;
+  min-height: 48px;
+}
+
+.boton-principal:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.boton-secundario {
+  border: 1.5px solid #f26921;
+  background: #fff;
+  color: #f26921;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Resumen final (según Figma HU-01) */
+.tarjeta-confirmacion {
+  padding: 20px;
+}
+
+.etiqueta-resumen {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: #756b66;
+  margin-bottom: 9px;
+  font-weight: 700;
+}
+
+.bloque-sede strong {
+  color: #30231e;
+  font-size: 15px;
+}
+
+.bloque-sede strong span { color: #f26921; }
+
+.bloque-productos-resumen {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #ead8c7;
+}
+
+.fila-producto-resumen {
+  margin-top: 10px;
+  color: #5e524d;
+  font-size: 13px;
+}
+
+.fila-producto-resumen span:first-child {
+  min-width: 0;
+}
+
+.fila-producto-resumen span:last-child {
+  white-space: nowrap;
+}
+
+.fila-total-final {
+  margin-top: 19px;
+  padding-top: 16px;
+  border-top: 1px solid #ead8c7;
+  color: #30231e;
+  font-size: 15px;
+}
+
+.aviso-confirmacion {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 17px 4px 0;
+  color: #756b66;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.aviso-confirmacion span {
+  flex: 0 0 auto;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Móvil: el resumen ocupa el ancho del Figma */
+@media (max-width: 699px) {
+  .contenido-carrito,
+  .contenido-confirmacion {
+    padding: 20px 20px 30px;
+  }
+
+  .tarjeta-confirmacion { padding: 20px 18px; }
+}
+
+/* Tablet y PC: se aprovecha el ancho sin estirar las tarjetas */
+@media (min-width: 700px) {
+  .contenido-carrito,
+  .contenido-confirmacion { padding: 44px 36px; }
+  .distribucion-carrito { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 24px; }
+  .contenido-confirmacion .tarjeta-confirmacion,
+  .contenido-confirmacion .aviso-confirmacion { max-width: 670px; }
+  .pie-compra { padding: 18px 36px; }
+  .botones-pie { grid-template-columns: 1fr 1fr; }
+  .contenido-confirmacion + .pie-compra .botones-pie { grid-template-columns: minmax(0, 420px); justify-content: center; }
+}
+
+@media (max-width: 360px) {
+  .item-carrito-detalle { gap: 4px; }
+  .item-carrito-encabezado strong { font-size: 12px; }
+  .item-carrito { padding: 12px; }
+}
