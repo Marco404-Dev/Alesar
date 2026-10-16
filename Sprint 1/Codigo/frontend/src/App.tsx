@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
-type Pantalla = 'sedes' | 'catalogo' | 'carrito' | 'confirmacion'
+type Pantalla = 'sedes' | 'catalogo' | 'carrito' | 'confirmacion' | 'pago'
 
 type Producto = {
   id: number
@@ -299,6 +299,70 @@ function App() {
     )
   }
 
+  // T01.5: pantalla de destino simulada para validar el paso al pago.
+  // No realiza cobros ni guarda pedidos: esa funcionalidad es independiente.
+  if (pantalla === 'pago') {
+    return (
+      <div className="aplicacion">
+        <header className="cabecera-catalogo">
+          <div className="barra-catalogo">
+            <button
+              type="button"
+              className="boton-volver"
+              aria-label="Regresar a la verificación del pedido"
+              onClick={() => setPantalla('confirmacion')}
+            >
+              ←
+            </button>
+            <span>Proceso de pago</span>
+          </div>
+        </header>
+
+        <main className="contenido contenido-pago">
+          <h2>Inicio del proceso de pago</h2>
+          <section className="tarjeta-pago" aria-label="Información recibida para el pago">
+            <p className="mensaje-pago">
+              Llegaste correctamente al proceso de pago. Esta pantalla es una
+              simulación para validar la navegación de la HU-01.
+            </p>
+            <span className="etiqueta-resumen">SEDE DE RECOJO:</span>
+            <strong className="sede-pago">{sede}</strong>
+            <div className="bloque-productos-resumen">
+              <span className="etiqueta-resumen">PRODUCTOS DEL PEDIDO:</span>
+              {productosElegidos.map((producto) => (
+                <div className="fila-producto-resumen" key={producto.id}>
+                  <span>{cantidades[producto.id]}x {producto.nombre}</span>
+                  <span>{formatoPrecio(producto.precio * cantidades[producto.id])}</span>
+                </div>
+              ))}
+            </div>
+            <div className="fila-total-final">
+              <strong>Total</strong>
+              <strong>{formatoPrecio(totalPagar)}</strong>
+            </div>
+          </section>
+          <p className="aviso-confirmacion">
+            <span aria-hidden="true">ⓘ</span>
+            No se realizará ningún cobro ni se registrará el pedido.
+            La integración con el módulo de pagos queda pendiente.
+          </p>
+        </main>
+
+        <footer className="pie-compra">
+          <div className="botones-pie botones-pago">
+            <button
+              type="button"
+              className="boton-secundario"
+              onClick={() => setPantalla('confirmacion')}
+            >
+              Volver a revisar el pedido
+            </button>
+          </div>
+        </footer>
+      </div>
+    )
+  }
+
   return (
     <div className="aplicacion">
       <header className="cabecera-catalogo">
@@ -347,9 +411,10 @@ function App() {
           <button
             type="button"
             className="boton-principal"
-            onClick={() => alert('La navegación al pago se implementará en la T01.5. Este prototipo todavía no cobra ni registra pedidos.')}
+            disabled={totalUnidades === 0}
+            onClick={() => setPantalla('pago')}
           >
-            ▣ Continuar al pago
+            Continuar al pago
           </button>
         </div>
       </footer>

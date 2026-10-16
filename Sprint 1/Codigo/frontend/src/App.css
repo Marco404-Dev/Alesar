@@ -565,3 +565,47 @@
   .item-carrito-encabezado strong { font-size: 12px; }
   .item-carrito { padding: 12px; }
 }
+
+/* T01.5 - Destino de navegación a pago (simulado, sin cobro) */
+.contenido-pago {
+  padding: 20px 20px 32px;
+}
+
+.contenido-pago h2 {
+  font-size: 23px;
+  margin-bottom: 18px;
+}
+
+.tarjeta-pago {
+  background: #ffffff;
+  border: 1px solid #ead8c7;
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 670px;
+}
+
+.mensaje-pago {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff2e8;
+  color: #48291f;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sede-pago {
+  display: block;
+  font-size: 15px;
+  color: #30231e;
+}
+
+@media (min-width: 700px) {
+  .contenido-pago {
+    padding: 44px 36px;
+  }
+  .botones-pie.botones-pago {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+  }
+}
