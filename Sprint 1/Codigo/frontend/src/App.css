@@ -1,0 +1,331 @@
+/* AllInstant — HU-01 | Diseño mobile first */
+.aplicacion {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f4ee;
+}
+
+.encabezado {
+  background: #48291f;
+  color: #fff;
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.encabezado h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.encabezado span {
+  display: block;
+  font-size: 11px;
+  color: #f26921;
+  font-weight: 700;
+}
+
+.contenido {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  flex: 1;
+}
+
+/* Selección de sede */
+.contenido-sedes {
+  padding: 28px 24px 20px;
+}
+
+.contenido h2 {
+  margin: 0 0 24px;
+  color: #30231e;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.sedes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.sede {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 84px;
+  padding: 16px;
+  text-align: left;
+  background: #fff;
+  border: 2px solid #edddce;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.sede.seleccionada { border-color: #f26921; }
+
+.ubicacion {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #7d6c63;
+  background: #f3eeea;
+  font-size: 26px;
+}
+
+.sede.seleccionada .ubicacion {
+  color: #f26921;
+  background: #fff2e8;
+}
+
+.informacion {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.informacion strong { color: #30231e; font-size: 16px; }
+.informacion small { color: #756b66; font-size: 12px; }
+
+.indicador {
+  display: grid;
+  place-items: center;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ead8c8;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.seleccionada .indicador {
+  color: white;
+  background: #f26921;
+  border-color: #f26921;
+}
+
+.pie-sedes {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.boton-principal {
+  width: 100%;
+  max-width: 420px;
+  padding: 17px;
+  border: 0;
+  border-radius: 999px;
+  background: #f26921;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Catálogo */
+.cabecera-catalogo {
+  background: #48291f;
+  color: #fff;
+}
+
+.barra-catalogo {
+  width: 100%;
+  max-width: 1120px;
+  height: 56px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.boton-volver {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0 8px 3px 0;
+}
+
+.contenido-catalogo {
+  padding: 20px 20px 30px;
+}
+
+.contenido-catalogo h2 {
+  margin-bottom: 18px;
+  font-size: 23px;
+}
+
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.producto-card {
+  min-width: 0;
+  min-height: 104px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border: 1.5px solid #ead8c7;
+  border-radius: 16px;
+}
+
+.producto-seleccionado { border-color: #f26921; }
+
+.producto-imagen {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 11px;
+  object-fit: cover;
+  background: #f7e6d4;
+}
+
+.producto-info { flex: 1; min-width: 0; }
+
+.producto-info h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #30231e;
+  line-height: 1.2;
+}
+
+.producto-info p {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #756b66;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.producto-info strong {
+  color: #f26921;
+  font-size: 13px;
+}
+
+.producto-acciones {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 72px;
+}
+
+.boton-agregar {
+  padding: 8px 10px;
+  border: 1px solid #f26921;
+  border-radius: 999px;
+  background: #fff;
+  color: #f26921;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.control-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #f26921;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.control-cantidad button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f26921;
+  color: #fff;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.control-cantidad span { min-width: 11px; text-align: center; }
+
+/* Barra inferior */
+.barra-carrito {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 14px 20px 18px;
+  background: #fff;
+  border-top: 1px solid #ead8c7;
+}
+
+.boton-carrito {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  background: #f26921;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.boton-carrito:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.texto-carrito { display: flex; align-items: center; gap: 9px; }
+
+/* Tablet */
+@media (min-width: 700px) {
+  .contenido-sedes { padding: 45px 36px; }
+  .sedes { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .sede { min-height: 108px; }
+  .contenido-catalogo { padding: 44px 36px 48px; }
+  .catalogo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .barra-catalogo { padding: 0 36px; }
+  .barra-carrito { padding: 14px 36px; }
+}
+
+/* Computadora */
+@media (min-width: 1100px) {
+  .catalogo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Celulares compactos */
+@media (max-width: 390px) {
+  .contenido-catalogo { padding: 18px 16px 28px; }
+  .producto-card { padding: 10px 9px; gap: 8px; }
+  .producto-imagen { width: 58px; height: 58px; }
+  .producto-acciones { min-width: 65px; }
+  .control-cantidad { gap: 6px; }
+  .control-cantidad button { width: 24px; height: 24px; }
+  .boton-agregar { padding: 7px 9px; }
+  .barra-carrito { padding-left: 16px; padding-right: 16px; }
+  .boton-carrito { padding: 15px 16px; }
+}
