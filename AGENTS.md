@@ -17,7 +17,7 @@
 
 - Registra pedidos operativos solo después de confirmar el pago. Un pedido nuevo inicia en `PREPARANDO`; conserva `RECIBIDO` para compatibilidad histórica.
 - Filtra cada consulta y escritura por sede en el servidor; no confíes solo en la sede enviada por el navegador.
-- El monitor `/cocina/smp` y `/cocina/lm` (T11.3) es de solo lectura, muestra ID de producto, nombre y cantidad, omite datos personales y controles de estado, y se actualiza por SSE.
+- Cocina opera solo mediante `/control-cocina/smp` y `/control-cocina/lm`: muestra pedidos `PREPARANDO` sin aviso, productos y cantidades, permite comunicar una finalización y se actualiza por SSE. Las rutas históricas `/cocina/*` no existen.
 - Despacho usa `/despacho/smp` y `/despacho/lm`: interfaz táctil por sede y orden cronológico, con ID, cliente, hora, estado y código de recojo, más una sección de preparaciones terminadas.
 - `/control-cocina/smp` y `/control-cocina/lm` registran un aviso persistente de preparación terminada sin cambiar el estado. El flujo es `PREPARANDO → LISTO_RECOJO → ENTREGADO`: despacho confirma listo y verifica el código antes de entregar. Conserva historial y rechaza transiciones arbitrarias.
 - Las interfaces operativas no requieren login individual; protege las escrituras mediante controles del servidor y acceso restringido a dispositivos internos. No expongas endpoints de modificación sin protección.

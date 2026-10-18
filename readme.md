@@ -111,7 +111,7 @@ Solo se incluyen herramientas y tecnologías respaldadas por archivos o enlaces 
 | Aplicación | Ubicación | Estado actual |
 |:--|:--|:--|
 | Web de clientes HU-01 | [`Sprint 1/Codigo/frontend/`](https://github.com/Marco404-Dev/Alesar/tree/main/Sprint%201/Codigo/frontend) | Prototipo independiente con Vite: selección de sede, catálogo de ejemplo, carrito, resumen y navegación al pago simulado. No registra pedidos ni procesa pagos reales. |
-| Operación T11.3/T11.4 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: monitor de cocina, control adicional y despacho por sede, con PostgreSQL y SSE. |
+| Operación T11.3/T11.4 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: una interfaz interactiva de cocina y despacho por sede, con PostgreSQL y SSE. |
 
 Son dos proyectos con archivos `package.json` y `package-lock.json` separados. Cada uno requiere instalar sus dependencias en su propio directorio. La interfaz HU-01 todavía no utiliza la base Neon ni está conectada con la aplicación operativa; la integración del pago y la creación de pedidos reales corresponden a trabajo posterior.
 
@@ -127,21 +127,21 @@ npm run dev
 
 Abre la dirección local que muestre Vite en la terminal. Este prototipo utiliza datos de ejemplo y no necesita `DATABASE_URL` ni otras credenciales de Neon.
 
-## T11.3 — Monitor de productos de cocina
+## T11.4 — Operación vigente de cocina y despacho
 
-La aplicación Next.js de la raíz de este repositorio ofrece dos rutas locales: `/cocina/smp` y `/cocina/lm`. Cada monitor muestra una lista vertical de líneas de producto de pedidos `RECIBIDO` o `PREPARANDO` de su sede. Cada línea contiene solo ID de producto, nombre y cantidad. Las líneas conservan internamente su pedido y se ordenan por la confirmación del pedido, sin fusionar productos iguales de pedidos diferentes. El monitor no modifica estados ni ofrece controles de operación.
+La aplicación Next.js de la raíz ofrece una sola interfaz de cocina por sede: `/control-cocina/smp` y `/control-cocina/lm`. Muestra pedidos pagados `PREPARANDO` sin aviso, sus productos y cantidades, permite seleccionar un pedido y comunicar «Preparación terminada». El pedido desaparece de cocina por SSE y mantiene `PREPARANDO` hasta que despacho confirma `LISTO_RECOJO`. Despacho opera en `/despacho/smp` y `/despacho/lm`.
 
-El esquema T11.2 original exigía `RECIBIDO` al insertar. La [migración T11.3](./Sprint%201/Codigo/T11.3_migracion_pedidos_cocina.sql), aplicada y verificada en Neon `development` según los resultados del proyecto, establece `PREPARANDO` como estado inicial y añade avisos PostgreSQL. Los pedidos históricos en `RECIBIDO` siguen visibles. La [documentación técnica de T11.3](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) describe la implementación, pruebas reportadas y evidencias disponibles.
+El esquema T11.2 original exigía `RECIBIDO` al insertar. La [migración T11.3](./Sprint%201/Codigo/T11.3_migracion_pedidos_cocina.sql), aplicada y verificada en Neon `development` según los resultados del proyecto, establece `PREPARANDO` como estado inicial y añade invalidaciones PostgreSQL que T11.4 reutiliza. Los pedidos históricos en `RECIBIDO` siguen disponibles para despacho. La [documentación técnica de T11.3](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) conserva la implementación y evidencia del monitor sustituido.
 
-### Ejecutar el monitor de cocina T11.3
+### Ejecutar la operación T11.4
 
 1. Usa la misma versión de Node.js indicada arriba y ejecuta `npm install` **en la raíz**, no en el directorio de Vite.
 2. Copia [`.env.example`](.env.example) a `.env.local` en la raíz. Este último archivo permanece fuera de Git.
 3. En `DATABASE_URL`, coloca la cadena de conexión de Neon para la base que ya contiene el esquema T11.2. Conserva `sslmode=require`. **No ejecutes de nuevo el script de creación sobre esa base.**
 4. Se recomienda definir `DATABASE_LISTEN_URL` con una conexión **directa** a esa misma base, sin `-pooler` en el host. Si falta y `DATABASE_URL` es una URL pooler de Neon, el servidor deriva el host directo del mismo endpoint para `LISTEN`. Una URL explícita de otra base o endpoint se rechaza.
-5. Ejecuta `npm run dev` desde la raíz y abre [http://127.0.0.1:3000/cocina/smp](http://127.0.0.1:3000/cocina/smp) o [http://127.0.0.1:3000/cocina/lm](http://127.0.0.1:3000/cocina/lm).
+5. Ejecuta `npm run dev` desde la raíz y abre [http://127.0.0.1:3000/control-cocina/smp](http://127.0.0.1:3000/control-cocina/smp) o [http://127.0.0.1:3000/control-cocina/lm](http://127.0.0.1:3000/control-cocina/lm).
 
-El servidor local escucha solo en `127.0.0.1`. No hay autenticación individual ni endpoints de escritura de pedidos. **Las rutas `/cocina/smp` y `/cocina/lm` identifican la sede, pero no autorizan al dispositivo o a la persona.** Tampoco debe exponerse públicamente `/api/kitchen/[site]/stream`: antes de cualquier despliegue en red, restringe la web operativa a la red interna de ALESAR o una VPN mediante firewall/proxy y usa HTTPS. Sin esos controles, quien alcance la URL podrá consultar las listas. Las credenciales de Neon deben permanecer únicamente en variables de entorno del servidor; no incluyas `.env.local`, cadenas de conexión reales ni otros secretos en Git.
+El servidor local escucha solo en `127.0.0.1`. No hay autenticación individual. **Las rutas operativas identifican la sede, pero no autorizan al dispositivo o a la persona.** No expongas públicamente `/api/operations/[site]/stream`: antes de cualquier despliegue en red, restringe la web operativa a la red interna de ALESAR o una VPN mediante firewall/proxy y usa HTTPS. Sin esos controles, quien alcance la URL podrá consultar las listas. Las credenciales de Neon deben permanecer únicamente en variables de entorno del servidor; no incluyas `.env.local`, cadenas de conexión reales ni otros secretos en Git.
 
 ### Eventos en tiempo real
 
@@ -149,7 +149,7 @@ El navegador usa Server-Sent Events (SSE). El servidor abre una conexión Postgr
 
 La migración T11.3 añade triggers sobre `pedidos`, `detalle_pedido` y cambios relevantes en `productos.nombre`; los avisos se entregan después de confirmar la transacción. El servidor debe ejecutarse como proceso Node persistente capaz de mantener la conexión SSE y `LISTEN`.
 
-T11.4 añade `/control-cocina/smp`, `/control-cocina/lm`, `/despacho/smp` y `/despacho/lm`. El control adicional registra un aviso persistente sin cambiar `PREPARANDO`; despacho confirma `LISTO_RECOJO` y entrega con el código. Cuando el aviso existe, el pedido deja el control adicional pero continúa en el monitor T11.3 hasta que despacho lo confirma. La [documentación técnica T11.4](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) detalla el flujo, las migraciones y las verificaciones.
+T11.4 opera `/control-cocina/smp`, `/control-cocina/lm`, `/despacho/smp` y `/despacho/lm`. Cocina registra un aviso persistente sin cambiar `PREPARANDO`; despacho confirma `LISTO_RECOJO` y entrega con el código. Cuando existe el aviso, el pedido deja de aparecer en la única pantalla de cocina. La [documentación técnica T11.4](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) detalla el flujo, las migraciones y las verificaciones.
 
 ### Pedidos de prueba T11.4
 
@@ -182,7 +182,7 @@ El repositorio contiene documentación funcional, diagramas, scripts SQL y prueb
 | **Evidencias Sprint 1** | [Capturas, videos e informes](./Sprint%201/Pruebas/README.md) |
 | **T11.1 actualizada** | [Reglas de visualización](./Sprint%201/Documentacion/T11.1-reglas-visualizacion-pedidos.md) |
 | **T11.2 actualizada** | [Especificación PostgreSQL](./Sprint%201/Documentacion/T11.2-estructura-pedidos-estados.md) |
-| **T11.3 monitor de cocina** | [Documentación técnica y trazabilidad](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) |
+| **T11.3 monitor histórico sustituido** | [Documentación técnica y trazabilidad](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) |
 | **T11.3 base de datos** | [Migración, pruebas y reversión](./Sprint%201/Codigo/README_T11.3_BD.md) |
 | **T11.4 despacho y control** | [Implementación, trazabilidad y límites](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) |
 | **Prototipo en Figma** | [Ver diseño](https://www.figma.com/design/w1Kpyyg6ZOSXDVEe60AUfq/Untitled?node-id=0-1&p=f) |
