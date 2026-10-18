@@ -2,7 +2,7 @@
 # Videos de evidencias — Sprint 1
 
 - [`HU01_Funcionamiento.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/HU01_Funcionamiento.mp4): video enlazado desde la documentación HU-01.
-- [`HU10_Funcionamiento.mp4`]([HU10_Funcionamiento.mp4](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/HU10_Funcionamiento.mp4)): video de evidencia de la HU-10, correspondiente a las pruebas del proceso de pago mediante Yape y tarjeta, incluyendo los escenarios de aprobación y rechazo.
+- [`HU10_Funcionamiento.mp4`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/HU10_Funcionamiento.mp4): video de evidencia de la HU-10, correspondiente a las pruebas del proceso de pago mediante Yape y tarjeta, incluyendo los escenarios de aprobación y rechazo.
 - [`T11.3_P01_Actualizacion_Tiempo_Real_SMP.mp4`](T11.3_P01_Actualizacion_Tiempo_Real_SMP.mp4): archivo de video sobre actualización en SMP.
 - [`T11.3_P02_Filtrado_Pedidos_Por_Sede_LM.mp4`](T11.3_P02_Filtrado_Pedidos_Por_Sede_LM.mp4): archivo de video sobre filtrado por sede LM.
 - [`Daily_Scrum01.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/Daily_Scrum01.mp4): video conservado de Daily Scrum.
