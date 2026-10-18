@@ -20,6 +20,10 @@ Esta carpeta contiene código ejecutable de pruebas y consultas de verificación
 | `T11.4_pruebas_post_migracion.sql` | Prueba transaccional ejecutada con `ROLLBACK`; no dejó datos sintéticos en `development`. |
 | `T11.4_sql_contract.test.ts` | Comprueba localmente guardia de estado, bloqueos por pedido, roles sin DML y reversión conservadora en SQL. |
 | `T11.4_concurrencia_manual.md` | Protocolo y evidencia de concurrencia de dos sesiones en `development`; conserva escenarios operativos de referencia. |
+| `test-orders-route.test.ts` | Bloqueos por entorno, autorización, marcador de desarrollo y llamada limitada del endpoint de pedidos sintéticos. |
+| `operations-board.test.tsx` | Visibilidad del botón de prueba solo para despacho cuando el servidor lo habilita. |
+| `T11.4_pedidos_prueba_verificacion.sql` | Contrato de estructura, privilegios y datos creados por el generador en `development`. |
+| `T11.4_previsualizacion_limpieza_pedidos_prueba.sql` | Consulta de solo lectura para enumerar pedidos sintéticos antes de una eventual limpieza autorizada. |
 
 Desde la raíz del repositorio, ejecutar `npm test` para las suites Vitest. `npm run typecheck` y `npm run build` verifican tipos y compilación. Estas pruebas usan dobles de base de datos o URL ficticias y no modifican Neon.
 

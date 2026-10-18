@@ -111,9 +111,9 @@ Solo se incluyen herramientas y tecnologías respaldadas por archivos o enlaces 
 | Aplicación | Ubicación | Estado actual |
 |:--|:--|:--|
 | Web de clientes HU-01 | [`Sprint 1/Codigo/frontend/`](https://github.com/Marco404-Dev/Alesar/tree/main/Sprint%201/Codigo/frontend) | Prototipo independiente con Vite: selección de sede, catálogo de ejemplo, carrito, resumen y navegación al pago simulado. No registra pedidos ni procesa pagos reales. |
-| Monitor operativo de cocina T11.3 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: consulta de productos pendientes por sede desde PostgreSQL en Neon y actualización mediante SSE. |
+| Operación T11.3/T11.4 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: monitor de cocina, control adicional y despacho por sede, con PostgreSQL y SSE. |
 
-Son dos proyectos con archivos `package.json` y `package-lock.json` separados. Cada uno requiere instalar sus dependencias en su propio directorio. La interfaz HU-01 todavía no utiliza la base Neon ni está conectada con el monitor; la integración del pago y la creación de pedidos corresponden a trabajo posterior. La pantalla de despacho también está pendiente.
+Son dos proyectos con archivos `package.json` y `package-lock.json` separados. Cada uno requiere instalar sus dependencias en su propio directorio. La interfaz HU-01 todavía no utiliza la base Neon ni está conectada con la aplicación operativa; la integración del pago y la creación de pedidos reales corresponden a trabajo posterior.
 
 ### Ejecutar la web de clientes HU-01
 
@@ -149,7 +149,11 @@ El navegador usa Server-Sent Events (SSE). El servidor abre una conexión Postgr
 
 La migración T11.3 añade triggers sobre `pedidos`, `detalle_pedido` y cambios relevantes en `productos.nombre`; los avisos se entregan después de confirmar la transacción. El servidor debe ejecutarse como proceso Node persistente capaz de mantener la conexión SSE y `LISTEN`.
 
-La comunicación desde el dispositivo adicional de cocina hacia despacho queda pendiente. Ese dispositivo no deberá cambiar el pedido directamente a `LISTO_RECOJO`; despacho lo confirmará en una tarea posterior. La web de clientes HU-01 existe como prototipo separado; su integración y la pantalla de despacho están fuera del alcance de T11.3.
+T11.4 añade `/control-cocina/smp`, `/control-cocina/lm`, `/despacho/smp` y `/despacho/lm`. El control adicional registra un aviso persistente sin cambiar `PREPARANDO`; despacho confirma `LISTO_RECOJO` y entrega con el código. Cuando el aviso existe, el pedido deja el control adicional pero continúa en el monitor T11.3 hasta que despacho lo confirma. La [documentación técnica T11.4](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) detalla el flujo, las migraciones y las verificaciones.
+
+### Pedidos de prueba T11.4
+
+Solo un servidor local en `NODE_ENV=development` con `ENABLE_TEST_ORDERS=true`, `TEST_ORDERS_DATABASE_URL` limitada y la base `development` marcada puede mostrar el botón de pedidos sintéticos en las rutas de despacho. La conexión y la bandera se guardan únicamente en `.env.local`; no se usan ni se configuran en producción. El pedido queda identificado en la base para una futura limpieza autorizada, sin botón público de borrado.
 
 ### Verificación
 
@@ -180,6 +184,7 @@ El repositorio contiene documentación funcional, diagramas, scripts SQL y prueb
 | **T11.2 actualizada** | [Especificación PostgreSQL](./Sprint%201/Documentacion/T11.2-estructura-pedidos-estados.md) |
 | **T11.3 monitor de cocina** | [Documentación técnica y trazabilidad](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) |
 | **T11.3 base de datos** | [Migración, pruebas y reversión](./Sprint%201/Codigo/README_T11.3_BD.md) |
+| **T11.4 despacho y control** | [Implementación, trazabilidad y límites](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) |
 | **Prototipo en Figma** | [Ver diseño](https://www.figma.com/design/w1Kpyyg6ZOSXDVEe60AUfq/Untitled?node-id=0-1&p=f) |
 
 <p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:422719,100:D93600&height=4&section=header" width="100%" alt="Separador" /></p>
