@@ -1,6 +1,6 @@
 # Sprint 1 — Testing
 
-Esta carpeta contiene código ejecutable de pruebas y consultas de verificación del Sprint 1. Los resultados, capturas, videos e informes de ejecución se guardan en `../Pruebas/`.
+Esta carpeta contiene código ejecutable de pruebas y consultas de verificación T11 del Sprint 1. Los resultados, capturas, videos e informes de ejecución se guardan en `../Pruebas/`. La organización acordada ubica aquí también las pruebas HU-02, pero sus scripts exclusivos de `main` aún están en `Codigo/` y `Pruebas/Codigo/`; su traslado requiere coordinar la integración de ramas.
 
 | Archivo | Propósito |
 |---|---|

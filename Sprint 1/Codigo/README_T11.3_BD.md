@@ -13,11 +13,11 @@
 
 El archivo del esquema T11.2 está ubicado en Sprint 2 aunque su tarea pertenece a Sprint 1. Se propone reubicarlo en Sprint 1 en una integración coordinada, conservando su contenido y referencia histórica; este trabajo no lo mueve.
 
-Los scripts ejecutables y las pruebas Vitest del Sprint 1 están en `../Testing/`. Las capturas, videos e informes de resultados permanecen en `../Pruebas/`.
+Los scripts ejecutables T11.2/T11.3 y las pruebas Vitest están en `../Testing/`. Los scripts HU-02 añadidos exclusivamente en `main` todavía están en `Sprint 1/Codigo/` y `Sprint 1/Pruebas/Codigo/`; su reorganización está pendiente de coordinación. Las capturas, videos e informes de resultados permanecen en `../Pruebas/`.
 
 ## Estado y configuración de Neon development
 
-La migración T11.3 se aplicó en el proyecto `allinstant-dev`, rama `development`, base `neondb`, según la verificación comunicada por el proyecto. Se reportaron seis triggers activos, `pedidos.estado_id DEFAULT 2`, dos sedes, cuatro estados y pruebas SQL posteriores satisfactorias sin pedidos ficticios restantes. Esta actualización documental no reejecutó la migración ni las consultas SQL. No se debe volver a ejecutar el esquema original T11.2 ni la migración T11.3 sobre esa base.
+La migración T11.3 se aplicó en el proyecto `allinstant-dev`, rama `development`, base `neondb`, según la verificación comunicada por el proyecto. En esa verificación se reportaron seis triggers activos, `pedidos.estado_id DEFAULT 2`, dos sedes, cuatro estados y pruebas SQL posteriores satisfactorias sin pedidos ficticios restantes. El SQL HU-02 presente en `main` puede agregar otro trigger si se aplica después; la cifra de seis no describe necesariamente el estado futuro de Neon. Esta actualización documental no reejecutó la migración ni las consultas SQL. No se debe volver a ejecutar el esquema original T11.2 ni la migración T11.3 sobre esa base.
 
 HU-10 deberá registrar nuevas cabeceras y detalles **después de validar el pago**, en una sola transacción. Los productores antiguos que intenten insertar explícitamente `RECIBIDO` fallarán con la regla actual y deberán adaptarse antes de integrarse.
 

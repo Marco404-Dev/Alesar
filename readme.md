@@ -100,12 +100,32 @@ Solo se incluyen herramientas y tecnologías respaldadas por archivos o enlaces 
 |:--|:--|
 | **PostgreSQL (SQL)** | Diseño de la estructura de pedidos, detalles y estados, y scripts de pruebas |
 | **Neon** | Entorno de pruebas de PostgreSQL documentado mediante evidencia de ejecución |
+| **Vite, React y TypeScript** | Prototipo de la web de clientes HU-01 en `Sprint 1/Codigo/frontend/` |
 | **Next.js, React y TypeScript** | Pantalla local de cocina de la tarea T11.3 |
 | **StarUML (UML)** | Diagramas de actividades y modelos editables (`.mdj`) |
 | **Figma** | Diseño y prototipado; [abrir prototipo](https://www.figma.com/design/w1Kpyyg6ZOSXDVEe60AUfq/Untitled?node-id=0-1&p=f) |
 | **GitHub** | Control de versiones y organización de entregables por sprint |
 
-La tarea T11.3 implementa una aplicación Next.js con frontend y endpoints de cocina. La pasarela de pago y la pantalla de despacho todavía no forman parte de esta aplicación.
+## Dos aplicaciones web
+
+| Aplicación | Ubicación | Estado actual |
+|:--|:--|:--|
+| Web de clientes HU-01 | [`Sprint 1/Codigo/frontend/`](https://github.com/Marco404-Dev/Alesar/tree/main/Sprint%201/Codigo/frontend) | Prototipo independiente con Vite: selección de sede, catálogo de ejemplo, carrito, resumen y navegación al pago simulado. No registra pedidos ni procesa pagos reales. |
+| Monitor operativo de cocina T11.3 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: consulta de productos pendientes por sede desde PostgreSQL en Neon y actualización mediante SSE. |
+
+Son dos proyectos con archivos `package.json` y `package-lock.json` separados. Cada uno requiere instalar sus dependencias en su propio directorio. La interfaz HU-01 todavía no utiliza la base Neon ni está conectada con el monitor; la integración del pago y la creación de pedidos corresponden a trabajo posterior. La pantalla de despacho también está pendiente.
+
+### Ejecutar la web de clientes HU-01
+
+Usa Node.js **20.19 o posterior** dentro de la versión 20, o **22.12 o posterior**. Desde la raíz del repositorio:
+
+```powershell
+cd "Sprint 1/Codigo/frontend"
+npm install
+npm run dev
+```
+
+Abre la dirección local que muestre Vite en la terminal. Este prototipo utiliza datos de ejemplo y no necesita `DATABASE_URL` ni otras credenciales de Neon.
 
 ## T11.3 — Monitor de productos de cocina
 
@@ -113,15 +133,15 @@ La aplicación Next.js de la raíz de este repositorio ofrece dos rutas locales:
 
 El esquema T11.2 original exigía `RECIBIDO` al insertar. La [migración T11.3](./Sprint%201/Codigo/T11.3_migracion_pedidos_cocina.sql), aplicada y verificada en Neon `development` según los resultados del proyecto, establece `PREPARANDO` como estado inicial y añade avisos PostgreSQL. Los pedidos históricos en `RECIBIDO` siguen visibles. La [documentación técnica de T11.3](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) describe la implementación, pruebas reportadas y evidencias disponibles.
 
-### Configuración local
+### Ejecutar el monitor de cocina T11.3
 
-1. Instala Node.js 20.9 o posterior y ejecuta `npm install` en la raíz.
-2. Copia `.env.example` a `.env.local`.
+1. Usa la misma versión de Node.js indicada arriba y ejecuta `npm install` **en la raíz**, no en el directorio de Vite.
+2. Copia [`.env.example`](.env.example) a `.env.local` en la raíz. Este último archivo permanece fuera de Git.
 3. En `DATABASE_URL`, coloca la cadena de conexión de Neon para la base que ya contiene el esquema T11.2. Conserva `sslmode=require`. **No ejecutes de nuevo el script de creación sobre esa base.**
 4. Se recomienda definir `DATABASE_LISTEN_URL` con una conexión **directa** a esa misma base, sin `-pooler` en el host. Si falta y `DATABASE_URL` es una URL pooler de Neon, el servidor deriva el host directo del mismo endpoint para `LISTEN`. Una URL explícita de otra base o endpoint se rechaza.
-5. Ejecuta `npm run dev` y abre [http://127.0.0.1:3000/cocina/smp](http://127.0.0.1:3000/cocina/smp) o [http://127.0.0.1:3000/cocina/lm](http://127.0.0.1:3000/cocina/lm).
+5. Ejecuta `npm run dev` desde la raíz y abre [http://127.0.0.1:3000/cocina/smp](http://127.0.0.1:3000/cocina/smp) o [http://127.0.0.1:3000/cocina/lm](http://127.0.0.1:3000/cocina/lm).
 
-El servidor local escucha solo en `127.0.0.1`. No hay pantalla de acceso ni endpoints de escritura de pedidos. Antes de un despliegue en red, restringe la web operativa a la red interna de ALESAR o una VPN mediante firewall/proxy y usa HTTPS; sin esos controles, quien alcance la URL podrá consultar las listas. No incluyas `.env.local` en Git.
+El servidor local escucha solo en `127.0.0.1`. No hay autenticación individual ni endpoints de escritura de pedidos. **Las rutas `/cocina/smp` y `/cocina/lm` identifican la sede, pero no autorizan al dispositivo o a la persona.** Tampoco debe exponerse públicamente `/api/kitchen/[site]/stream`: antes de cualquier despliegue en red, restringe la web operativa a la red interna de ALESAR o una VPN mediante firewall/proxy y usa HTTPS. Sin esos controles, quien alcance la URL podrá consultar las listas. Las credenciales de Neon deben permanecer únicamente en variables de entorno del servidor; no incluyas `.env.local`, cadenas de conexión reales ni otros secretos en Git.
 
 ### Eventos en tiempo real
 
@@ -129,7 +149,7 @@ El navegador usa Server-Sent Events (SSE). El servidor abre una conexión Postgr
 
 La migración T11.3 añade triggers sobre `pedidos`, `detalle_pedido` y cambios relevantes en `productos.nombre`; los avisos se entregan después de confirmar la transacción. El servidor debe ejecutarse como proceso Node persistente capaz de mantener la conexión SSE y `LISTEN`.
 
-La comunicación desde el dispositivo adicional de cocina hacia despacho queda pendiente. Ese dispositivo no deberá cambiar el pedido directamente a `LISTO_RECOJO`; despacho lo confirmará en una tarea posterior. La web de clientes y la pantalla de despacho están fuera del alcance de T11.3.
+La comunicación desde el dispositivo adicional de cocina hacia despacho queda pendiente. Ese dispositivo no deberá cambiar el pedido directamente a `LISTO_RECOJO`; despacho lo confirmará en una tarea posterior. La web de clientes HU-01 existe como prototipo separado; su integración y la pantalla de despacho están fuera del alcance de T11.3.
 
 ### Verificación
 
@@ -151,6 +171,8 @@ El repositorio contiene documentación funcional, diagramas, scripts SQL y prueb
 | **Sprint 2** | [Scripts de base de datos y entregables](./Sprint%202) |
 | **Sprint 3** | [Estructura de entregables](./Sprint%203) |
 | **Modelo de pedidos y estados** | [Script SQL](./Sprint%202/Codigo/Base%20de%20Datos/T11.2_estructura_pedidos_y_estados.sql) |
+| **Web de clientes HU-01** | [Frontend Vite en `main`](https://github.com/Marco404-Dev/Alesar/tree/main/Sprint%201/Codigo/frontend) |
+| **Modelo HU-02 de disponibilidad** | [Documentación en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Documentacion/T02.2-modelo-datos-disponibilidad.md) |
 | **Testing Sprint 1** | [Pruebas automatizadas y SQL](./Sprint%201/Testing/README.md) |
 | **Pruebas SQL T11.2** | [Script original](./Sprint%201/Testing/T11.2_pruebas_pedidos_y_estados.sql) |
 | **Evidencias Sprint 1** | [Capturas, videos e informes](./Sprint%201/Pruebas/README.md) |
