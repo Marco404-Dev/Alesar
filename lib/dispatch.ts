@@ -35,18 +35,22 @@ export async function listDispatchOrders(db: Queryable, site: KitchenSite): Prom
 }
 
 export async function listControlOrders(db: Queryable, site: KitchenSite): Promise<ControlSnapshot> {
-  const result = await db.query<{ pedido_id: string; terminado_en: Date | null; productos: { name: string; quantity: number }[] }>(
-    `SELECT p.pedido_id, a.terminado_en,
+  const result = await db.query<{ pedido_id: string; productos: { name: string; quantity: number }[] }>(
+    `SELECT p.pedido_id,
        COALESCE(jsonb_agg(jsonb_build_object('name', pr.nombre, 'quantity', d.cantidad)
                           ORDER BY d.detalle_id) FILTER (WHERE d.detalle_id IS NOT NULL), '[]'::jsonb) AS productos
-     FROM pedidos p LEFT JOIN avisos_preparacion a ON a.pedido_id = p.pedido_id
+     FROM pedidos p
      LEFT JOIN detalle_pedido d ON d.pedido_id = p.pedido_id
      LEFT JOIN productos pr ON pr.producto_id = d.producto_id
      WHERE p.sede_id = $1 AND p.estado_id = 2 AND p.pago_confirmado = TRUE
-     GROUP BY p.pedido_id, a.terminado_en
+       AND NOT EXISTS (
+         SELECT 1 FROM avisos_preparacion a
+         WHERE a.pedido_id = p.pedido_id
+       )
+     GROUP BY p.pedido_id
      ORDER BY p.confirmado_en ASC, p.pedido_id ASC`, [site.id]);
   return { siteName: site.name, orders: result.rows.map(row => ({
-    id: String(row.pedido_id), preparationFinishedAt: row.terminado_en ? new Date(row.terminado_en).toISOString() : null,
+    id: String(row.pedido_id), preparationFinishedAt: null,
     products: row.productos,
   })) };
 }

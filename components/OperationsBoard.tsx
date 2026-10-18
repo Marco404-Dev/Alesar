@@ -14,12 +14,15 @@ const results: Record<string, string> = {
   "no-notice": "Cocina aún no ha terminado esta preparación.", "invalid-code": "El código de recojo no coincide.",
 };
 
-export default function OperationsBoard({ site, siteName, mode }: { site: SiteSlug; siteName: string; mode: Mode }) {
+export default function OperationsBoard({ site, siteName, mode, testOrdersEnabled = false }: {
+  site: SiteSlug; siteName: string; mode: Mode; testOrdersEnabled?: boolean;
+}) {
   const [snapshot, setSnapshot] = useState<DispatchSnapshot | ControlSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pickupCode, setPickupCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -59,13 +62,34 @@ export default function OperationsBoard({ site, siteName, mode }: { site: SiteSl
     } finally { setBusy(false); }
   }
 
+  async function generateTestOrder() {
+    if (generating || busy) return;
+    if (!connected) { setMessage("Sin conexión con los pedidos. Espera a que se actualice la lista."); return; }
+    setGenerating(true); setMessage("");
+    try {
+      const tokenResponse = await fetch(`/api/operations/${site}/token?role=dispatch`, { cache: "no-store" });
+      if (!tokenResponse.ok) throw new Error("No se pudo validar el acceso al dispositivo.");
+      const { token } = await tokenResponse.json();
+      const response = await fetch(`/api/operations/${site}/test-orders`, {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "AllInstant", "X-CSRF-Token": token },
+        body: "{}",
+      });
+      const data = await response.json();
+      if (!response.ok) { setMessage(data.error || "No se pudo generar el pedido de prueba."); return; }
+      setMessage(`Pedido de prueba #${data.pedidoId} generado. La lista se actualizará automáticamente.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No se pudo generar el pedido de prueba.");
+    } finally { setGenerating(false); }
+  }
+
   return <main className="operations">
     <header className="operations-header">
       <div className="operations-brand"><span className="operations-brand-mark">A</span><span>AllInstant <b>×</b> ALESAR</span></div>
       <div className="operations-place"><span>{mode === "dispatch" ? "Despacho" : "Control de cocina"}</span><strong>{snapshot?.siteName || siteName}</strong></div>
     </header>
     <div className="operations-content">
-      <div className="operations-title-row"><div><p className="operations-eyebrow">OPERACIÓN · {site.toUpperCase()}</p><h1>{mode === "dispatch" ? "Pedidos para despacho" : "Preparaciones en cocina"}</h1></div><span className={connected ? "operations-live" : "operations-offline"}>{connected ? "En vivo" : "Reconectando…"}</span></div>
+      <div className="operations-title-row"><div><p className="operations-eyebrow">OPERACIÓN · {site.toUpperCase()}</p><h1>{mode === "dispatch" ? "Pedidos para despacho" : "Preparaciones en cocina"}</h1></div><div className="operations-title-actions">{mode === "dispatch" && testOrdersEnabled && <button type="button" className="operations-test-order" disabled={generating || busy || !connected} onClick={() => void generateTestOrder()}>{generating ? "Generando…" : "+ Generar pedido de prueba"}</button>}<span className={connected ? "operations-live" : "operations-offline"}>{connected ? "En vivo" : "Reconectando…"}</span></div></div>
       {!snapshot && <p className="operations-status" role="status">Cargando pedidos de la sede…</p>}
       {!connected && snapshot && <p className="operations-status" role="status">Conexión interrumpida. Las acciones se habilitarán al recuperar la lista actual.</p>}
       {message && <p className="operations-status" role="status">{message}</p>}
