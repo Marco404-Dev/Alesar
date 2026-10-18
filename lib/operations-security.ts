@@ -2,7 +2,10 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 
 const cookieName = "alesar_csrf";
-const developmentSecret = randomBytes(32).toString("hex");
+function developmentSecret(): string {
+  const processState = globalThis as typeof globalThis & { __allinstantOperationsCsrfSecret?: string };
+  return processState.__allinstantOperationsCsrfSecret ||= randomBytes(32).toString("hex");
+}
 
 function equal(a: string, b: string): boolean {
   const left = Buffer.from(a); const right = Buffer.from(b);
@@ -42,7 +45,7 @@ export function operationsAccess(request: NextRequest, site: "smp" | "lm", role:
 }
 
 function secret(): string | null {
-  return process.env.OPERATIONS_CSRF_SECRET || (process.env.NODE_ENV === "production" ? null : developmentSecret);
+  return process.env.OPERATIONS_CSRF_SECRET || (process.env.NODE_ENV === "production" ? null : developmentSecret());
 }
 
 export function makeCsrfToken(site: string): string {
