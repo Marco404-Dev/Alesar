@@ -1,6 +1,7 @@
 import { Client, Pool } from "pg";
 
 let pool: Pool | undefined;
+const operationalPools: Partial<Record<"control" | "dispatch", Pool>> = {};
 
 export function database(): Pool {
   if (!pool) {
@@ -9,6 +10,19 @@ export function database(): Pool {
     pool = new Pool({ connectionString, max: 5, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000 });
   }
   return pool;
+}
+
+export function operationalDatabase(role: "control" | "dispatch"): Pool {
+  if (!operationalPools[role]) {
+    const connectionString = role === "control" ? process.env.KITCHEN_DATABASE_URL : process.env.DISPATCH_DATABASE_URL;
+    if (!connectionString || connectionString === process.env.DATABASE_URL) {
+      throw new Error("Se requiere una cuenta PostgreSQL operativa independiente y limitada");
+    }
+    operationalPools[role] = new Pool({
+      connectionString, max: 3, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000,
+    });
+  }
+  return operationalPools[role];
 }
 
 export function listenConnectionString(databaseUrl?: string, listenUrl?: string): string {

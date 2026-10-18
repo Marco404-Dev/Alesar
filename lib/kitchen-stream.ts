@@ -9,11 +9,12 @@ function errorCode(error: unknown): string {
   return typeof code === "string" ? code : "SIN_CODIGO";
 }
 
-export async function createKitchenStream(
+export async function createKitchenStream<T = KitchenSnapshot>(
   client: Client,
   siteId: string,
-  loadSnapshot: () => Promise<KitchenSnapshot>,
+  loadSnapshot: () => Promise<T>,
   signal: AbortSignal,
+  channels: readonly string[] = [channel],
 ): Promise<ReadableStream<Uint8Array>> {
   try {
     await client.connect();
@@ -23,7 +24,10 @@ export async function createKitchenStream(
     throw error;
   }
   try {
-    await client.query(`LISTEN ${channel}`);
+    for (const name of channels) {
+      if (name !== "allinstant_cocina" && name !== "allinstant_despacho") throw new Error("Canal no válido");
+      await client.query(`LISTEN ${name}`);
+    }
   } catch (error) {
     console.error("SSE cocina: falló LISTEN", errorCode(error));
     await client.end().catch(() => {});
@@ -80,7 +84,7 @@ export async function createKitchenStream(
   }
 
   function onNotification(message: Notification) {
-    if (message.channel !== channel || message.payload !== siteId) return;
+    if (!channels.includes(message.channel) || message.payload !== siteId) return;
     dirty = true;
     void publish();
   }
