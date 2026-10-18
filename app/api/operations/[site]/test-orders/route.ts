@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database, testOrdersDatabase } from "@/lib/db";
-import { findKitchenSite, siteCodeFromSlug } from "@/lib/kitchen";
+import { findOperationsSite, siteCodeFromSlug } from "@/lib/operations-site";
 import { operationsAccess, validCsrf } from "@/lib/operations-security";
 
 export const runtime = "nodejs";
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ si
   if (!operationsAccess(request, site, "dispatch", true) || !validCsrf(request, `${slug}-dispatch`))
     return NextResponse.json({ error: "Solicitud no autorizada" }, { status: 403 });
   try {
-    const kitchenSite = await findKitchenSite(database(), code);
+    const operationsSite = await findOperationsSite(database(), code);
     const testDb = testOrdersDatabase();
     const environment = await testDb.query<{ is_development: boolean }>(
       "SELECT EXISTS (SELECT 1 FROM public.t114_entorno_pruebas WHERE entorno = 'development') AS is_development",
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ si
     if (environment.rowCount !== 1 || environment.rows[0]?.is_development !== true)
       return NextResponse.json({ error: "Generador no disponible para esta base de datos" }, { status: 403 });
     const generated = await testDb.query<{ pedido_id: string | number }>(
-      "SELECT public.fn_t114_generar_pedido_prueba($1::bigint) AS pedido_id", [kitchenSite.id],
+      "SELECT public.fn_t114_generar_pedido_prueba($1::bigint) AS pedido_id", [operationsSite.id],
     );
     const pedidoId = String(generated.rows[0]?.pedido_id || "");
     if (generated.rowCount !== 1 || !/^[1-9][0-9]{0,18}$/.test(pedidoId)) throw new Error("Resultado inválido del generador");

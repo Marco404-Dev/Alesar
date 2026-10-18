@@ -13,7 +13,7 @@ describe("consultas operativas", () => {
     expect(snapshot.orders[0]).toEqual({ id: "8", customer: "Ana", confirmedAt: "2026-10-18T12:00:00.000Z", state: "PREPARANDO", pickupCode: "ABC123", preparationFinishedAt: "2026-10-18T12:10:00.000Z", products: [{ name: "Menú", quantity: 2 }] });
   });
 
-  it("control de cocina excluye avisos persistidos sin cambiar la consulta del monitor T11.3", async () => {
+  it("control de cocina excluye avisos persistidos", async () => {
     const query = vi.fn().mockResolvedValue({ rows: [{ pedido_id: "8", productos: [{ name: "Menú", quantity: 2 }] }] });
     const snapshot = await listControlOrders({ query } as never, site);
     expect(query.mock.calls[0][0]).toContain("p.sede_id = $1 AND p.estado_id = 2");

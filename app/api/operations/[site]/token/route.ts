@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { siteCodeFromSlug } from "@/lib/kitchen";
+import { siteCodeFromSlug } from "@/lib/operations-site";
 import { cookieName, csrfCookiePath, makeCsrfToken, operationsAccess } from "@/lib/operations-security";
 
 export const runtime = "nodejs";

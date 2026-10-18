@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database, notificationClient } from "@/lib/db";
-import { findKitchenSite, siteCodeFromSlug } from "@/lib/kitchen";
+import { findOperationsSite, siteCodeFromSlug } from "@/lib/operations-site";
 import { listControlOrders, listDispatchOrders } from "@/lib/dispatch";
-import { createKitchenStream } from "@/lib/kitchen-stream";
+import { createOperationsStream } from "@/lib/operations-stream";
 import { operationsAccess } from "@/lib/operations-security";
 
 export const runtime = "nodejs";
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest, context: { params: Promise<{ sit
   if (!operationsAccess(request, code.toLowerCase() as "smp" | "lm", mode)) return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
   try {
     const pool = database();
-    const site = await findKitchenSite(pool, code);
-    const stream = await createKitchenStream(notificationClient(), site.id,
+    const site = await findOperationsSite(pool, code);
+    const stream = await createOperationsStream(notificationClient(), site.id,
       () => mode === "dispatch" ? listDispatchOrders(pool, site) : listControlOrders(pool, site),
       request.signal, ["allinstant_cocina", "allinstant_despacho"]);
     return new Response(stream, { headers: {

@@ -5,15 +5,13 @@ Esta carpeta contiene código ejecutable de pruebas y consultas de verificación
 | Archivo | Propósito |
 |---|---|
 | `db.test.ts` | Comprueba selección de conexión directa y rechazo de endpoints distintos o pooler para `LISTEN`. |
-| `kitchen.test.ts` | Comprueba el filtro por sede y la consulta de líneas de cocina. |
-| `kitchen-stream.test.ts` | Comprueba fotos SSE, avisos por sede y recuperación tras reconectar. |
-| `route.test.ts` | Comprueba las rutas de lectura y la selección de sede en el servidor. |
-| `monitor.test.tsx` | Comprueba la lista visible de productos y el estado vacío. |
+| *(histórico retirado)* | Las pruebas exclusivas del monitor T11.3 se retiraron junto con sus rutas y componentes; su evidencia queda indexada en `Pruebas/`. |
 | `T11.2_pruebas_pedidos_y_estados.sql` | Pruebas históricas del esquema T11.2, cuyo pedido inicial era `RECIBIDO`; terminan en `ROLLBACK`. No corresponden al esquema tras T11.3. |
 | `T11.3_pruebas_post_migracion.sql` | Pruebas del esquema tras T11.3; usan transacción y `ROLLBACK`. Su ejecución satisfactoria en Neon `development` fue reportada por el proyecto. |
 | `T11.3_verificacion_post_migracion.sql` | Consultas de solo lectura para revisar default, triggers, funciones, vistas e historial; la verificación posterior fue reportada por el proyecto. |
 | `dispatch.test.ts` | Consultas por sede y selección de funciones SQL según acción; rechazo de credenciales con DML directo. |
-| `dispatch-stream.test.ts` | SSE de despacho/control, filtro por sede y recuperación de avisos tras reconexión. |
+| `operations-stream.test.ts` | SSE de cocina y despacho, filtro por sede y recuperación tras reconexión. |
+| `operations-route.test.ts` | Selección de sede y flujo de las rutas operativas actuales. |
 | `operations-security.test.ts` | Origen, CSRF y claves internas diferentes por sede y área. |
 | `operations-list.test.tsx` | Datos visibles, estado vacío y ausencia de datos personales en control. |
 | `T11.4_verificacion_post_migracion.sql` | Consultas de solo lectura ejecutadas para verificar la migración T11.4 en `development`. |

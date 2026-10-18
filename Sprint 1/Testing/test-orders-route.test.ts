@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
-  database: vi.fn(), testOrdersDatabase: vi.fn(), findKitchenSite: vi.fn(),
+  database: vi.fn(), testOrdersDatabase: vi.fn(), findOperationsSite: vi.fn(),
 }));
 
 vi.mock("@/lib/db", () => ({ database: mocks.database, testOrdersDatabase: mocks.testOrdersDatabase }));
-vi.mock("@/lib/kitchen", async importOriginal => ({
-  ...(await importOriginal<typeof import("../../lib/kitchen")>()), findKitchenSite: mocks.findKitchenSite,
+vi.mock("@/lib/operations-site", async importOriginal => ({
+  ...(await importOriginal<typeof import("../../lib/operations-site")>()), findOperationsSite: mocks.findOperationsSite,
 }));
 
 import { POST } from "../../app/api/operations/[site]/test-orders/route";
@@ -30,7 +30,7 @@ describe("endpoint de pedidos sintéticos", () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("ENABLE_TEST_ORDERS", "true");
     mocks.database.mockReturnValue({});
-    mocks.findKitchenSite.mockResolvedValue({ id: "1", code: "SMP", name: "San Martín de Porres" });
+    mocks.findOperationsSite.mockResolvedValue({ id: "1", code: "SMP", name: "San Martín de Porres" });
   });
 
   it("permanece inaccesible sin la habilitación explícita", async () => {
@@ -62,7 +62,7 @@ describe("endpoint de pedidos sintéticos", () => {
     const response = await POST(request(token), context("smp"));
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ pedidoId: "91" });
-    expect(mocks.findKitchenSite).toHaveBeenCalledWith(expect.anything(), "SMP");
+    expect(mocks.findOperationsSite).toHaveBeenCalledWith(expect.anything(), "SMP");
     expect(testDb.query.mock.calls[0][0]).toContain("t114_entorno_pruebas");
     expect(testDb.query.mock.calls[1]).toEqual([
       "SELECT public.fn_t114_generar_pedido_prueba($1::bigint) AS pedido_id", ["1"],

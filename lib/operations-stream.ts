@@ -1,7 +1,5 @@
 import type { Client, Notification } from "pg";
-import type { KitchenSnapshot } from "./kitchen";
 
-const channel = "allinstant_cocina";
 const encoder = new TextEncoder();
 
 function errorCode(error: unknown): string {
@@ -9,27 +7,26 @@ function errorCode(error: unknown): string {
   return typeof code === "string" ? code : "SIN_CODIGO";
 }
 
-export async function createKitchenStream<T = KitchenSnapshot>(
+export async function createOperationsStream<T>(
   client: Client,
   siteId: string,
   loadSnapshot: () => Promise<T>,
   signal: AbortSignal,
-  channels: readonly string[] = [channel],
+  channels: readonly ("allinstant_cocina" | "allinstant_despacho")[],
 ): Promise<ReadableStream<Uint8Array>> {
   try {
     await client.connect();
   } catch (error) {
-    console.error("SSE cocina: falló la conexión directa a PostgreSQL", errorCode(error));
+    console.error("SSE operativo: falló la conexión directa a PostgreSQL", errorCode(error));
     await client.end().catch(() => {});
     throw error;
   }
   try {
     for (const name of channels) {
-      if (name !== "allinstant_cocina" && name !== "allinstant_despacho") throw new Error("Canal no válido");
       await client.query(`LISTEN ${name}`);
     }
   } catch (error) {
-    console.error("SSE cocina: falló LISTEN", errorCode(error));
+    console.error("SSE operativo: falló LISTEN", errorCode(error));
     await client.end().catch(() => {});
     throw error;
   }
@@ -60,7 +57,7 @@ export async function createKitchenStream<T = KitchenSnapshot>(
   }
 
   function onError(error: Error) {
-    console.error("SSE cocina: conexión PostgreSQL interrumpida", errorCode(error));
+    console.error("SSE operativo: conexión PostgreSQL interrumpida", errorCode(error));
     cleanup();
   }
   function onDisconnect() { cleanup(); }
@@ -75,7 +72,7 @@ export async function createKitchenStream<T = KitchenSnapshot>(
         send(`event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n`);
       }
     } catch (error) {
-      console.error("SSE cocina: falló la consulta de productos", errorCode(error));
+      console.error("SSE operativo: falló la consulta", errorCode(error));
       send("event: stream-error\ndata: {}\n\n");
       cleanup();
     } finally {

@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import { describe, expect, it, vi } from "vitest";
 import type { Client } from "pg";
-import { createKitchenStream } from "../../lib/kitchen-stream";
+import { createOperationsStream } from "../../lib/operations-stream";
 
 class FakeClient extends EventEmitter {
   connect = vi.fn(async () => {});
@@ -16,7 +16,7 @@ describe("SSE operativo", () => {
     const client = new FakeClient();
     const load = vi.fn().mockResolvedValueOnce({ orders: [] }).mockResolvedValueOnce({ orders: [{ id: "8" }] });
     const abort = new AbortController();
-    const stream = await createKitchenStream(client as unknown as Client, "1", load, abort.signal, ["allinstant_despacho"]);
+    const stream = await createOperationsStream(client as unknown as Client, "1", load, abort.signal, ["allinstant_despacho"]);
     const reader = stream.getReader();
     expect(client.query).toHaveBeenCalledWith("LISTEN allinstant_despacho");
     await reader.read();
@@ -31,12 +31,12 @@ describe("SSE operativo", () => {
   it("control escucha cocina y despacho; reconexión recupera aviso persistido", async () => {
     const first = new FakeClient();
     const abort = new AbortController();
-    const firstStream = await createKitchenStream(first as unknown as Client, "1", async () => ({ orders: [{ id: "8", preparationFinishedAt: null }] }), abort.signal, ["allinstant_cocina", "allinstant_despacho"]);
+    const firstStream = await createOperationsStream(first as unknown as Client, "1", async () => ({ orders: [{ id: "8", preparationFinishedAt: null }] }), abort.signal, ["allinstant_cocina", "allinstant_despacho"]);
     const reader = firstStream.getReader();
     await reader.read(); await reader.read(); abort.abort();
     expect(first.query.mock.calls.map(call => String(call[0]))).toEqual(["LISTEN allinstant_cocina", "LISTEN allinstant_despacho"]);
     const second = new FakeClient();
-    const secondStream = await createKitchenStream(second as unknown as Client, "1", async () => ({ orders: [{ id: "8", preparationFinishedAt: "2026-10-18T12:00:00Z" }] }), new AbortController().signal, ["allinstant_cocina", "allinstant_despacho"]);
+    const secondStream = await createOperationsStream(second as unknown as Client, "1", async () => ({ orders: [{ id: "8", preparationFinishedAt: "2026-10-18T12:00:00Z" }] }), new AbortController().signal, ["allinstant_cocina", "allinstant_despacho"]);
     const secondReader = secondStream.getReader();
     await secondReader.read();
     expect(decoder.decode((await secondReader.read()).value)).toContain("preparationFinishedAt");

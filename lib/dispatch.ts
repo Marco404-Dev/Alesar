@@ -1,5 +1,5 @@
 import type { Pool } from "pg";
-import type { KitchenSite } from "./kitchen";
+import type { OperationsSite } from "./operations-site";
 
 type Queryable = Pick<Pool, "query">;
 export type DispatchOrder = {
@@ -11,7 +11,7 @@ export type DispatchSnapshot = { siteName: string; orders: DispatchOrder[] };
 export type ControlSnapshot = { siteName: string; orders: { id: string; preparationFinishedAt: string | null; products: { name: string; quantity: number }[] }[] };
 export type OperationResult = "ok" | "duplicate" | "not-found" | "invalid-state" | "no-notice" | "invalid-code";
 
-export async function listDispatchOrders(db: Queryable, site: KitchenSite): Promise<DispatchSnapshot> {
+export async function listDispatchOrders(db: Queryable, site: OperationsSite): Promise<DispatchSnapshot> {
   const result = await db.query<{
     pedido_id: string; nombre_cliente: string; confirmado_en: Date; estado_codigo: DispatchOrder["state"];
     codigo_recojo: string; terminado_en: Date | null; productos: { name: string; quantity: number }[];
@@ -34,7 +34,7 @@ export async function listDispatchOrders(db: Queryable, site: KitchenSite): Prom
   })) };
 }
 
-export async function listControlOrders(db: Queryable, site: KitchenSite): Promise<ControlSnapshot> {
+export async function listControlOrders(db: Queryable, site: OperationsSite): Promise<ControlSnapshot> {
   const result = await db.query<{ pedido_id: string; productos: { name: string; quantity: number }[] }>(
     `SELECT p.pedido_id,
        COALESCE(jsonb_agg(jsonb_build_object('name', pr.nombre, 'quantity', d.cantidad)
@@ -55,7 +55,7 @@ export async function listControlOrders(db: Queryable, site: KitchenSite): Promi
   })) };
 }
 
-export async function changeOrder(db: Queryable, site: KitchenSite, orderId: string,
+export async function changeOrder(db: Queryable, site: OperationsSite, orderId: string,
   action: "finish" | "ready" | "deliver", pickupCode?: string): Promise<OperationResult> {
   // Rechaza credenciales propietarias o con DML directo, aunque estén
   // configuradas por error como cuenta operativa. No registra el código.

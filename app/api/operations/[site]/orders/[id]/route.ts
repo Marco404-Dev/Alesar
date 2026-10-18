@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database, operationalDatabase } from "@/lib/db";
-import { findKitchenSite, siteCodeFromSlug } from "@/lib/kitchen";
+import { findOperationsSite, siteCodeFromSlug } from "@/lib/operations-site";
 import { changeOrder } from "@/lib/dispatch";
 import { operationsAccess, validCsrf } from "@/lib/operations-security";
 
@@ -27,8 +27,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ si
     return NextResponse.json({ error: "Código no válido" }, { status: 400 });
   try {
     const pool = database();
-    const kitchenSite = await findKitchenSite(pool, code);
-    const result = await changeOrder(operationalDatabase(role), kitchenSite, id, action, action === "deliver" ? body.pickupCode as string : undefined);
+    const operationsSite = await findOperationsSite(pool, code);
+    const result = await changeOrder(operationalDatabase(role), operationsSite, id, action, action === "deliver" ? body.pickupCode as string : undefined);
     const statuses = { ok: 200, duplicate: 409, "not-found": 404, "invalid-state": 409, "no-notice": 409, "invalid-code": 422 };
     return NextResponse.json({ result }, { status: statuses[result], headers: { "Cache-Control": "no-store" } });
   } catch (error) {

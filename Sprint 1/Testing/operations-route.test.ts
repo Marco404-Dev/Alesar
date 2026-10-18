@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
-  database: vi.fn(), operationalDatabase: vi.fn(), findKitchenSite: vi.fn(), changeOrder: vi.fn(),
+  database: vi.fn(), operationalDatabase: vi.fn(), findOperationsSite: vi.fn(), changeOrder: vi.fn(),
 }));
 
 vi.mock("@/lib/db", () => ({ database: mocks.database, operationalDatabase: mocks.operationalDatabase }));
-vi.mock("@/lib/kitchen", async importOriginal => ({
-  ...(await importOriginal<typeof import("../../lib/kitchen")>()), findKitchenSite: mocks.findKitchenSite,
+vi.mock("@/lib/operations-site", async importOriginal => ({
+  ...(await importOriginal<typeof import("../../lib/operations-site")>()), findOperationsSite: mocks.findOperationsSite,
 }));
 vi.mock("@/lib/dispatch", () => ({ changeOrder: mocks.changeOrder }));
 
@@ -21,7 +21,7 @@ describe("endpoint de transición operativa", () => {
     vi.clearAllMocks();
     mocks.database.mockReturnValue({});
     mocks.operationalDatabase.mockReturnValue({});
-    mocks.findKitchenSite.mockResolvedValue({ id: "1", code: "SMP", name: "San Martín de Porres" });
+    mocks.findOperationsSite.mockResolvedValue({ id: "1", code: "SMP", name: "San Martín de Porres" });
     mocks.changeOrder.mockResolvedValue("ok");
   });
 
@@ -44,7 +44,7 @@ describe("endpoint de transición operativa", () => {
     });
     const response = await POST(request, context("smp", "8"));
     expect(response.status).toBe(200);
-    expect(mocks.findKitchenSite).toHaveBeenCalledWith(expect.anything(), "SMP");
+    expect(mocks.findOperationsSite).toHaveBeenCalledWith(expect.anything(), "SMP");
     expect(mocks.operationalDatabase).toHaveBeenCalledWith("dispatch");
     expect(mocks.changeOrder).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ id: "1" }), "8", "ready", undefined);
   });
