@@ -1,4 +1,6 @@
-# T11.3 — Base de datos del monitor de cocina
+# T11.3 — Base de datos histórica de cocina
+
+> El monitor T11.3 fue sustituido por el control de cocina T11.4. Este documento conserva la trazabilidad de la migración; sus objetos PostgreSQL y `NOTIFY` siguen siendo dependencias de las rutas operativas vigentes.
 
 ## Estado de los archivos
 
@@ -21,7 +23,7 @@ La migración T11.3 se aplicó en el proyecto `allinstant-dev`, rama `developmen
 
 HU-10 deberá registrar nuevas cabeceras y detalles **después de validar el pago**, en una sola transacción. Los productores antiguos que intenten insertar explícitamente `RECIBIDO` fallarán con la regla actual y deberán adaptarse antes de integrarse.
 
-La aplicación Next.js configura `DATABASE_URL` solo en `.env.local` o variables del servidor. Para `LISTEN` se recomienda `DATABASE_LISTEN_URL` directa, sin `-pooler`; si falta y `DATABASE_URL` usa el pooler de Neon, el servidor deriva el host directo del mismo endpoint. Una URL de escucha explícita de otro endpoint o base se rechaza. Las rutas `/cocina/smp` y `/cocina/lm` consultan esta misma base y filtran cada sede por separado.
+La aplicación Next.js configura `DATABASE_URL` solo en `.env.local` o variables del servidor. Para `LISTEN` se recomienda `DATABASE_LISTEN_URL` directa, sin `-pooler`; si falta y `DATABASE_URL` usa el pooler de Neon, el servidor deriva el host directo del mismo endpoint. Una URL de escucha explícita de otro endpoint o base se rechaza. Las rutas `/control-cocina/smp` y `/control-cocina/lm` consultan esta misma base y filtran cada sede por separado.
 
 Los scripts no contienen credenciales. Nunca subir `.env.local` ni pegar cadenas de conexión en documentación o capturas.
 

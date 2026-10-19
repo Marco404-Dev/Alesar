@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./operations.css";
 
 export const metadata: Metadata = {
-  title: "Cocina | AllInstant ALESAR",
-  description: "Pedidos activos de cocina por sede",
+  title: "Operaciones | AllInstant ALESAR",
+  description: "Cocina y despacho por sede",
   robots: { index: false, follow: false },
 };
 
