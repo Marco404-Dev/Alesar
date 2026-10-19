@@ -70,3 +70,46 @@ Conflictos previsibles: `App.tsx` es monolítico y solo FE-2 lo modifica; `app/a
 ## Límites y resultado de esta fase
 
 No se ejecutaron migraciones, cambios de datos, endpoints ni pruebas de navegador. La validación Neon fue únicamente de estructura. Las pruebas T11.4/T11.5 y la operación SSE se preservan; las evidencias históricas no se reinterpretan. El plan queda listo para asignación tras decidir la fuente de catálogo y autorizar la migración HU-02.
+
+## Implementación posterior autorizada
+
+Después de aprobar este plan, se implementó la integración en la rama local
+`codex/sprint1-client-integration`:
+
+- T02.6 creó `catalogo_producto` y aplicó la disponibilidad por sede en
+  `allinstant-dev` / `development` / `neondb`, mediante una transacción
+  aditiva con límites de bloqueo y tiempo. La estructura, índice y triggers
+  fueron verificados. La documentación y los SQL de recuperación están en
+  [T02.6](T02.6-catalogo-integracion-neon.md).
+- Solo el producto identificado explícitamente como sintético, `Lomo saltado
+  - Prueba LM` (ID 5), quedó habilitado para LM como prueba E2E de catálogo;
+  SMP permanece agotada. No se cambió su precio histórico `18.00`, ni se
+  inventaron descripción o imagen. El script conserva esa precondición y no
+  debe reutilizarse para productos reales.
+- Next.js expone `/api/client/sites`, `/api/client/catalog`,
+  `/api/client/checkout/quote`, `/api/client/payments/simulate` y
+  `/api/client/orders`. Recalcula precio y disponibilidad dentro de la
+  transacción, crea pedido y detalles tras pago aprobado y conserva
+  `PREPARANDO`. Un reintento del mismo pago confirmado devuelve el pedido ya
+  creado, sin duplicarlo dentro de la instancia del proceso.
+- El Vite consume esa API con una URL pública configurable, sin credenciales;
+  incorpora catálogo por sede, agotados no seleccionables, formulario de DNI,
+  nombre y WhatsApp, pago simulado y código de recojo. Su proxy de desarrollo
+  solo reenvía `/api` al destino configurado.
+
+### Verificaciones realizadas
+
+- `npm run typecheck`: correcto.
+- Pruebas focalizadas: 17/17 aprobadas (checkout y rutas cliente, además de
+  contrato operativo HU-11 y T11.5).
+- Vite: `npm run build` y `npm run lint` correctos.
+- SQL T02.6 y la habilitación controlada: ejecutados y verificados en Neon
+  development; production no fue consultada ni modificada.
+
+No se creó un pedido final por HTTP: la comprobación local contra el servidor
+Next temporal no logró conexión de loopback desde el entorno de ejecución. Por
+ello sigue pendiente la prueba manual de navegador que confirme el pedido
+sintético, la foto SSE de cocina/despacho y la reconexión. El almacenamiento
+de cotizaciones/pagos simulados es memoria de proceso, adecuado solo para este
+Sprint y una instancia; una futura distribución requiere persistencia o sesión
+compartida.

@@ -23,6 +23,9 @@ Esta carpeta contiene código ejecutable de pruebas y consultas de verificación
 | `T11.5-validacion-identificacion-estados-sede.test.ts` | Contrato de identidad, filtros de sede/estado/pago y snapshots SSE de alta y retiro. |
 | `T11.4_pedidos_prueba_verificacion.sql` | Contrato de estructura, privilegios y datos creados por el generador en `development`. |
 | `T11.4_previsualizacion_limpieza_pedidos_prueba.sql` | Consulta de solo lectura para enumerar pedidos sintéticos antes de una eventual limpieza autorizada. |
+| `T02.6_verificacion_catalogo_integracion.sql` | Verificación SQL de solo lectura para catálogo persistente, disponibilidad por sede y semilla conservadora de la integración. |
+| `T02.6_habilitar_producto_sintetico_lm.sql` | Habilitación transaccional e idempotente, solo para el producto sintético E2E en LM; no modifica precio ni metadata. |
+| `T02.6_verificacion_producto_sintetico_lm.sql` | Verificación de solo lectura de la habilitación E2E: LM disponible y SMP agotada. |
 
 Desde la raíz del repositorio, ejecutar `npm test` para las suites Vitest. `npm run typecheck` y `npm run build` verifican tipos y compilación. Estas pruebas usan dobles de base de datos o URL ficticias y no modifican Neon.
 

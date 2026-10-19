@@ -81,7 +81,7 @@ export async function createOperationsStream<T>(
   }
 
   function onNotification(message: Notification) {
-    if (!channels.includes(message.channel) || message.payload !== siteId) return;
+    if (!(channels as readonly string[]).includes(message.channel) || message.payload !== siteId) return;
     dirty = true;
     void publish();
   }
