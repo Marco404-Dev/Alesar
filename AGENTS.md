@@ -20,6 +20,7 @@
 - Cocina opera solo mediante `/control-cocina/smp` y `/control-cocina/lm`: muestra pedidos `PREPARANDO` sin aviso, productos y cantidades, permite comunicar una finalización y se actualiza por SSE. Las rutas históricas `/cocina/*` no existen.
 - Despacho usa `/despacho/smp` y `/despacho/lm`: interfaz táctil por sede y orden cronológico, con ID, cliente, hora, estado y código de recojo, más una sección de preparaciones terminadas.
 - `/control-cocina/smp` y `/control-cocina/lm` registran un aviso persistente de preparación terminada sin cambiar el estado. El flujo es `PREPARANDO → LISTO_RECOJO → ENTREGADO`: despacho confirma listo y verifica el código antes de entregar. Conserva historial y rechaza transiciones arbitrarias.
+- T11.5 mantiene pruebas focalizadas para identificación válida, filtros por sede/estado/pago y fotos SSE de alta y retiro. La evidencia de video se identifica por archivo y formato; no atribuirle resultados no revisados.
 - Las interfaces operativas no requieren login individual; protege las escrituras mediante controles del servidor y acceso restringido a dispositivos internos. No expongas endpoints de modificación sin protección.
 
 ## Neon y seguridad de datos

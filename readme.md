@@ -101,7 +101,7 @@ Solo se incluyen herramientas y tecnologías respaldadas por archivos o enlaces 
 | **PostgreSQL (SQL)** | Diseño de la estructura de pedidos, detalles y estados, y scripts de pruebas |
 | **Neon** | Entorno de pruebas de PostgreSQL documentado mediante evidencia de ejecución |
 | **Vite, React y TypeScript** | Prototipo de la web de clientes HU-01 en `Sprint 1/Codigo/frontend/` |
-| **Next.js, React y TypeScript** | Pantalla local de cocina de la tarea T11.3 |
+| **Next.js, React y TypeScript** | Aplicación operativa de cocina y despacho por sede |
 | **StarUML (UML)** | Diagramas de actividades y modelos editables (`.mdj`) |
 | **Figma** | Diseño y prototipado; [abrir prototipo](https://www.figma.com/design/w1Kpyyg6ZOSXDVEe60AUfq/Untitled?node-id=0-1&p=f) |
 | **GitHub** | Control de versiones y organización de entregables por sprint |
@@ -111,7 +111,7 @@ Solo se incluyen herramientas y tecnologías respaldadas por archivos o enlaces 
 | Aplicación | Ubicación | Estado actual |
 |:--|:--|:--|
 | Web de clientes HU-01 | [`Sprint 1/Codigo/frontend/`](https://github.com/Marco404-Dev/Alesar/tree/main/Sprint%201/Codigo/frontend) | Prototipo independiente con Vite: selección de sede, catálogo de ejemplo, carrito, resumen y navegación al pago simulado. No registra pedidos ni procesa pagos reales. |
-| Operación T11.3/T11.4 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: una interfaz interactiva de cocina y despacho por sede, con PostgreSQL y SSE. |
+| Operación T11.4/T11.5 | Raíz del repositorio: `app/`, `components/` y `lib/` | Aplicación independiente con Next.js: una interfaz interactiva de cocina y despacho por sede, con PostgreSQL y SSE. |
 
 Son dos proyectos con archivos `package.json` y `package-lock.json` separados. Cada uno requiere instalar sus dependencias en su propio directorio. La interfaz HU-01 todavía no utiliza la base Neon ni está conectada con la aplicación operativa; la integración del pago y la creación de pedidos reales corresponden a trabajo posterior.
 
@@ -185,6 +185,7 @@ El repositorio contiene documentación funcional, diagramas, scripts SQL y prueb
 | **T11.3 monitor histórico sustituido** | [Documentación técnica y trazabilidad](./Sprint%201/Documentacion/T11.3-implementacion-monitor-cocina.md) |
 | **T11.3 base de datos** | [Migración, pruebas y reversión](./Sprint%201/Codigo/README_T11.3_BD.md) |
 | **T11.4 despacho y control** | [Implementación, trazabilidad y límites](./Sprint%201/Documentacion/T11.4-implementacion-vista-despacho.md) |
+| **T11.5 validación operativa** | [Identificación, estados, sede y pedidos nuevos](./Sprint%201/Documentacion/T11.5-validacion-identificacion-estados-sede-pedidos.md) |
 | **Prototipo en Figma** | [Ver diseño](https://www.figma.com/design/w1Kpyyg6ZOSXDVEe60AUfq/Untitled?node-id=0-1&p=f) |
 
 <p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:422719,100:D93600&height=4&section=header" width="100%" alt="Separador" /></p>

@@ -8,6 +8,7 @@ Esta carpeta está destinada a evidencias de ejecución: capturas de pantalla, v
 | T11.2 | [`capturas/T11.2-ejecucion-pruebas-neon.png`](capturas/T11.2-ejecucion-pruebas-neon.png) | Captura histórica de ejecución en Neon. |
 | T11.3 histórico | [`videos/T11.3_P01_Actualizacion_Tiempo_Real_SMP.mp4`](videos/T11.3_P01_Actualizacion_Tiempo_Real_SMP.mp4) | Video del monitor sustituido sobre actualización en SMP; contenido no evaluado en esta revisión. |
 | T11.3 histórico | [`videos/T11.3_P02_Filtrado_Pedidos_Por_Sede_LM.mp4`](videos/T11.3_P02_Filtrado_Pedidos_Por_Sede_LM.mp4) | Video del monitor sustituido sobre filtrado de La Molina; contenido no evaluado en esta revisión. |
+| T11.5 | [`videos/T11.5_Validacion_Identificacion_Estados_Sedes_Nuevos_Pedidos.mp4`](videos/T11.5_Validacion_Identificacion_Estados_Sedes_Nuevos_Pedidos.mp4) | Video MP4 identificado; formato comprobado sin modificarlo ni revisar visualmente su contenido. |
 | Daily Scrum | [`Daily_Scrum01.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/Daily_Scrum01.mp4) y [`Daily_Scrum.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Daily%20Scrum/Daily_Scrum.mp4) | Videos conservados en sus ubicaciones actuales. |
 | Sin clasificación confirmada | [`video4452161113.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/video4452161113.mp4) | Archivo conservado sin atribuirlo a una historia de usuario. |
 

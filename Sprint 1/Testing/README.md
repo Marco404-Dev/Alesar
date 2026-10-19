@@ -20,6 +20,7 @@ Esta carpeta contiene código ejecutable de pruebas y consultas de verificación
 | `T11.4_concurrencia_manual.md` | Protocolo y evidencia de concurrencia de dos sesiones en `development`; conserva escenarios operativos de referencia. |
 | `test-orders-route.test.ts` | Bloqueos por entorno, autorización, marcador de desarrollo y llamada limitada del endpoint de pedidos sintéticos. |
 | `operations-board.test.tsx` | Visibilidad del botón de prueba solo para despacho cuando el servidor lo habilita. |
+| `T11.5-validacion-identificacion-estados-sede.test.ts` | Contrato de identidad, filtros de sede/estado/pago y snapshots SSE de alta y retiro. |
 | `T11.4_pedidos_prueba_verificacion.sql` | Contrato de estructura, privilegios y datos creados por el generador en `development`. |
 | `T11.4_previsualizacion_limpieza_pedidos_prueba.sql` | Consulta de solo lectura para enumerar pedidos sintéticos antes de una eventual limpieza autorizada. |
 
