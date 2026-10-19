@@ -27,3 +27,5 @@ Esta carpeta contiene código ejecutable de pruebas y consultas de verificación
 Desde la raíz del repositorio, ejecutar `npm test` para las suites Vitest. `npm run typecheck` y `npm run build` verifican tipos y compilación. Estas pruebas usan dobles de base de datos o URL ficticias y no modifican Neon.
 
 Las pruebas TypeScript están en esta carpeta; no existe una carpeta `tests/` en la raíz que haya que mover. Vitest las descubre aquí con la configuración actual. No ejecutar el script histórico T11.2 tras la migración T11.3 ni ejecutar migraciones como parte de `npm test`. El estado de la base y la reversión T11.3 se documentan en [Código](../Codigo/README_T11.3_BD.md); los resultados y límites operativos T11.4 constan en [su documento](../Documentacion/T11.4-implementacion-vista-despacho.md).
+
+Las pruebas de integración cliente se definirán junto con los endpoints previstos en [T00](../Documentacion/T00-integracion-general-sprint-1.md); esta planificación no añadió ni ejecutó pruebas.
