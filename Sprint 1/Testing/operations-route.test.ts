@@ -49,9 +49,9 @@ describe("endpoint de transición operativa", () => {
     expect(mocks.changeOrder).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ id: "1" }), "8", "ready", undefined);
   });
 
-  it("rechaza identificadores fuera del rango BIGINT antes de acceder a la base", async () => {
-    const request = new NextRequest("http://localhost:3000/api/operations/smp/orders/9223372036854775808", { method: "POST" });
-    expect((await POST(request, context("smp", "9223372036854775808"))).status).toBe(404);
+  it.each(["0", "-1", "pedido", "9223372036854775808"])("rechaza el identificador inválido %s antes de acceder a la base", async id => {
+    const request = new NextRequest(`http://localhost:3000/api/operations/smp/orders/${id}`, { method: "POST" });
+    expect((await POST(request, context("smp", id))).status).toBe(404);
     expect(mocks.database).not.toHaveBeenCalled();
   });
 });
