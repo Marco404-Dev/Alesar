@@ -18,4 +18,3 @@ export async function findOperationsSite(db: Queryable, code: SiteCode): Promise
   if (result.rowCount !== 1) throw new Error(`La sede ${code} no existe en la base de datos`);
   return { id: String(result.rows[0].sede_id), code, name: result.rows[0].nombre };
 }
-
