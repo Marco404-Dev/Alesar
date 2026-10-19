@@ -6,11 +6,23 @@ let testOrdersPool: Pool | undefined;
 
 export function database(): Pool {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error("DATABASE_URL no está configurado");
+    const connectionString = applicationConnectionString(
+      process.env.DATABASE_URL, process.env.DATABASE_LISTEN_URL, process.env.NODE_ENV,
+    );
     pool = new Pool({ connectionString, max: 5, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000 });
   }
   return pool;
+}
+
+/**
+ * El pooler es la opción normal de una aplicación web. En development, Neon
+ * puede tenerlo deshabilitado; en ese caso se reutiliza solamente la URL
+ * directa ya configurada para LISTEN, tras comprobar que es la misma base.
+ */
+export function applicationConnectionString(databaseUrl?: string, directUrl?: string, environment = process.env.NODE_ENV): string {
+  if (!databaseUrl) throw new Error("DATABASE_URL no está configurado");
+  if (environment !== "production" && directUrl) return listenConnectionString(databaseUrl, directUrl);
+  return databaseUrl;
 }
 
 export function operationalDatabase(role: "control" | "dispatch"): Pool {

@@ -113,3 +113,25 @@ sintético, la foto SSE de cocina/despacho y la reconexión. El almacenamiento
 de cotizaciones/pagos simulados es memoria de proceso, adecuado solo para este
 Sprint y una instancia; una futura distribución requiere persistencia o sesión
 compartida.
+
+### Incidente E2E — catálogo no disponible (18-10-2026)
+
+La prueba manual de Vite mostró el mensaje `El servicio de catálogo no está
+disponible`. La causa fue de conexión, no de catálogo: `DATABASE_URL` apuntaba
+al host Neon `-pooler` mientras el compute `development` tiene el pooler
+deshabilitado. El intento de conexión devolvió `ENOTFOUND`; la ruta de catálogo
+lo convertía correctamente en HTTP 503. La verificación por API administrada
+de Neon confirmó que T02.6 existe y que el producto sintético ID 5 se devuelve
+para LM con `disponible = true` y precio `18.00`.
+
+La aplicación usa ahora, únicamente fuera de producción, la URL directa ya
+configurada para `DATABASE_LISTEN_URL`, después de comprobar que representa el
+mismo endpoint y base. En producción conserva `DATABASE_URL` (pooler). También
+se fijaron Next en `127.0.0.1:3000` y Vite en `127.0.0.1:5173`: ambos fallan
+ante un puerto ocupado, en vez de migrar de puerto silenciosamente. El proxy de
+Vite apunta por defecto a `http://127.0.0.1:3000` y admite
+`VITE_DEV_API_TARGET` si se usa otro puerto.
+
+El sandbox de ejecución no pudo resolver DNS de los endpoints Neon, por lo que
+no fue posible una respuesta HTTP local real. La validación a repetir en el
+navegador está documentada en el README del frontend.
