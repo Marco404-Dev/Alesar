@@ -188,3 +188,17 @@ archivos Vitest focalizados, 20/20 pruebas aprobadas (conexión, checkout,
 rutas cliente, ruta operativa y SSE). Una recarga de despacho abrió una nueva
 conexión SSE y recuperó la foto vacía posterior a la entrega; falta únicamente
 una prueba ante una desconexión de red real y las revisiones previas a publicar.
+
+### Cierre de semilla y código corto (21-10-2026)
+
+En `allinstant-dev/development/neondb` se confirmó el índice parcial por sede
+para códigos activos y el retiro de la unicidad global histórica, sin modificar
+los ocho pedidos ya existentes. La semilla `T00_catalogo_sintetico_sedes.sql`
+agregó diez productos `[Prueba S1]` a cada sede: ocho disponibles, dos agotados
+y conservación del producto previo. Ambos catálogos respondieron HTTP `200`.
+
+La E2E posterior creó el pedido sintético LM 29 con dos líneas, código `6ZG` y
+estado `PREPARANDO`. Cocina comunicó la preparación, despacho confirmó
+`LISTO_RECOJO` y la entrega con `6zg` llegó a `ENTREGADO`; Neon confirmó su
+historial. Una colisión concurrente forzada y la reconexión SSE por caída de
+red siguen pendientes de evidencia específica.

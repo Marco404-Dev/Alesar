@@ -32,4 +32,12 @@ Se reemplazó el nombre visible, documentación y metadatos de paquete por **AlI
 
 ## Verificación y límites
 
-El 21-10-2026 se comprobó antes de aplicar que `development` / `neondb` era el destino, existían ocho pedidos históricos y no había conflictos entre códigos activos. La migración de códigos se aplicó allí correctamente. La semilla fue detenida antes de escribir: el conector SQL devolvió `branch not found` pese a que la API de metadatos aún confirma la misma rama y base. Por seguridad, quedan pendientes la semilla, consulta de índice posterior, E2E, concurrencia y reconexión SSE hasta resolver esa inconsistencia sin usar otra rama. La comprobación estática sí incluye typecheck y pruebas focalizadas; no se atribuye evidencia de video.
+El 21-10-2026 se comprobó antes de aplicar que `development` / `neondb` era el destino, existían ocho pedidos históricos y no había conflictos entre códigos activos. La migración de códigos se aplicó allí correctamente. El fallo transitorio `branch not found` correspondió al ejecutor SQL del conector, no a la rama: la API de Neon continuó enumerando `br-delicate-bird-b51xsp4s` como `development` y `neondb`; una consulta posterior volvió a funcionar sin cambiar de rama. La semilla se aplicó después en esa misma rama.
+
+### Resultado verificable posterior
+
+- El índice parcial `pedidos_codigo_recojo_activo_sede_uq` existe y la restricción global histórica ya no existe.
+- Cada sede tiene 10 productos `[Prueba S1]`: 8 disponibles, 2 agotados y un producto preexistente conservado.
+- HTTP real local: catálogo LM `200` con 11 filas y catálogo SMP `200` con 11 filas, procedentes de Next conectado a Neon development.
+- E2E HTTP real: el pedido sintético LM `29` se creó con dos productos, estado `PREPARANDO` y código `6ZG`; cocina comunicó finalización, despacho confirmó `LISTO_RECOJO` y la entrega aceptó `6zg`. Neon confirmó estado final `ENTREGADO`, dos líneas y el historial `PREPARANDO`, `LISTO_RECOJO`, `ENTREGADO`.
+- No se declaró la reconexión SSE ni una colisión concurrente forzada como aprobadas: la herramienta de navegador no devolvió una instantánea dentro del límite y no se debe inferir esa evidencia de las operaciones HTTP.
