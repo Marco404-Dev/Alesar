@@ -12,6 +12,7 @@ BEGIN
   END IF;
   IF to_regrole('allinstant_t114_test_orders') IS NULL OR
      to_regprocedure('public.fn_t114_generar_pedido_prueba(bigint)') IS NULL OR
+     to_regprocedure('public.fn_t00_crear_pedido_colision_prueba(text,text)') IS NOT NULL OR
      to_regclass('public.catalogo_producto') IS NULL OR
      to_regclass('public.disponibilidad_producto_sede') IS NULL OR
      NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname='public' AND tablename='pedidos' AND indexname='pedidos_codigo_recojo_activo_sede_uq') THEN
@@ -19,7 +20,7 @@ BEGIN
   END IF;
 END $preflight$;
 
-CREATE OR REPLACE FUNCTION public.fn_t00_crear_pedido_colision_prueba(p_codigo text, p_dni text)
+CREATE FUNCTION public.fn_t00_crear_pedido_colision_prueba(p_codigo text, p_dni text)
 RETURNS TABLE(pedido_id bigint, codigo_recojo text)
 LANGUAGE plpgsql SECURITY DEFINER
 SET search_path TO pg_catalog, public, pg_temp

@@ -203,6 +203,16 @@ estado `PREPARANDO`. Cocina comunicó la preparación, despacho confirmó
 historial. Una colisión concurrente forzada y la reconexión SSE por caída de
 red siguen pendientes de evidencia específica.
 
+### Colisión concurrente real de códigos (21-10-2026)
+
+Con una función temporal `SECURITY DEFINER` restringida a la cuenta limitada de
+pruebas y a `development/neondb`, dos conexiones LM intentaron el código
+sintético `ZXZ`. PostgreSQL rechazó una inserción con `23505`; el script
+reintentó solo esa conexión con `ZXY`. Creó los pedidos marcados 35 (`ZXZ`) y
+36 (`ZXY`), ambos con detalle, y luego los entregó por cocina/despacho. La
+consulta posterior confirmó historial completo, cero códigos de prueba activos,
+dos entregados y la función temporal eliminada sin privilegios DML directos.
+
 La validación posterior de concurrencia no alteró datos: la cuenta de pruebas
 de `development/neondb` confirmó el marcador de entorno, pero recibió `42501`
 al intentar leer `sedes`, conforme al modelo de privilegios mínimos. El script
