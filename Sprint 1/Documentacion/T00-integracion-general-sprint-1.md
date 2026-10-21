@@ -202,3 +202,11 @@ estado `PREPARANDO`. Cocina comunicó la preparación, despacho confirmó
 `LISTO_RECOJO` y la entrega con `6zg` llegó a `ENTREGADO`; Neon confirmó su
 historial. Una colisión concurrente forzada y la reconexión SSE por caída de
 red siguen pendientes de evidencia específica.
+
+La validación posterior de concurrencia no alteró datos: la cuenta de pruebas
+de `development/neondb` confirmó el marcador de entorno, pero recibió `42501`
+al intentar leer `sedes`, conforme al modelo de privilegios mínimos. El script
+reproducible `Testing/T00_prueba_concurrencia_codigo_recojo.mjs` queda listo
+para una credencial de desarrollo autorizada. Las 30 pruebas focalizadas,
+incluidas las dos simulaciones de reconexión SSE, aprobaron; no equivalen a un
+corte de red real en navegador.

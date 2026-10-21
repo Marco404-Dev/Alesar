@@ -41,3 +41,9 @@ El 21-10-2026 se comprobó antes de aplicar que `development` / `neondb` era el 
 - HTTP real local: catálogo LM `200` con 11 filas y catálogo SMP `200` con 11 filas, procedentes de Next conectado a Neon development.
 - E2E HTTP real: el pedido sintético LM `29` se creó con dos productos, estado `PREPARANDO` y código `6ZG`; cocina comunicó finalización, despacho confirmó `LISTO_RECOJO` y la entrega aceptó `6zg`. Neon confirmó estado final `ENTREGADO`, dos líneas y el historial `PREPARANDO`, `LISTO_RECOJO`, `ENTREGADO`.
 - No se declaró la reconexión SSE ni una colisión concurrente forzada como aprobadas: la herramienta de navegador no devolvió una instantánea dentro del límite y no se debe inferir esa evidencia de las operaciones HTTP.
+
+### Validación de concurrencia y SSE — límite de privilegios (21-10-2026)
+
+Se añadió `Testing/T00_prueba_concurrencia_codigo_recojo.mjs`: exige que la conexión de prueba confirme `development/neondb`, intenta dos transacciones simultáneas con el mismo código sintético (`ZXZ`) y solo permite el segundo alta con código alternativo (`ZXY`) tras `23505`. Al ejecutarlo con la cuenta limitada de pruebas, PostgreSQL denegó lectura de `sedes` (`42501`) antes de crear pedidos. Esto confirma privilegios mínimos, pero impide afirmar una prueba real de concurrencia en Neon sin una credencial de desarrollo autorizada que pueda insertar datos sintéticos. No se ampliaron privilegios ni se modificaron datos.
+
+Las pruebas automatizadas de SSE (`operations-stream.test.ts`) ejecutaron la desconexión y reapertura simuladas de un cliente: verifican `LISTEN` por canal y que la nueva foto incluye el aviso persistido. No constituyen una interrupción de red real en navegador. Para la evidencia pendiente, abrir `/control-cocina/lm` y `/despacho/lm`, detener temporalmente la conexión del navegador, generar un pedido sintético desde un segundo cliente, restaurar red y confirmar la foto SSE sin recarga manual.
