@@ -1,4 +1,4 @@
--- AllInstant / Sprint 1 / T02.6
+-- AlInstant / Sprint 1 / T02.6
 -- Verificación de solo lectura posterior a la habilitación controlada para E2E.
 
 SELECT

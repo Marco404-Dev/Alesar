@@ -39,7 +39,7 @@ export function operationsAccess(request: NextRequest, site: "smp" | "lm", role:
     if (!expected.includes(request.headers.get("origin") || "")) return false;
     if (request.headers.get("sec-fetch-site") && request.headers.get("sec-fetch-site") !== "same-origin") return false;
     if (request.headers.get("content-type")?.split(";")[0].trim() !== "application/json") return false;
-    if (request.headers.get("x-requested-with") !== "AllInstant") return false;
+    if (request.headers.get("x-requested-with") !== "AlInstant") return false;
   }
   return true;
 }

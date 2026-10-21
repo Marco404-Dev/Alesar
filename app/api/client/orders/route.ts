@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { database } from "@/lib/db";
 import { clientCors, clientError, clientJson, clientWriteAllowed } from "@/lib/client-api";
 import { CatalogChangedError, CatalogNotReadyError } from "@/lib/client-catalog";
-import { CustomerInputError, PaymentNotFoundError, PaymentRejectedError, PaymentUsedError, createOrderFromPayment, parseCustomer } from "@/lib/client-checkout";
+import { CustomerInputError, PaymentNotFoundError, PaymentRejectedError, PaymentUsedError, PickupCodeUnavailableError, createOrderFromPayment, parseCustomer } from "@/lib/client-checkout";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof PaymentNotFoundError) return clientError(request, 409, "PAYMENT_EXPIRED", error.message);
     if (error instanceof CatalogChangedError) return clientError(request, 409, "CATALOG_CHANGED", error.message);
     if (error instanceof CatalogNotReadyError) return clientError(request, 503, "CATALOG_NOT_READY", error.message);
+    if (error instanceof PickupCodeUnavailableError) return clientError(request, 503, "PICKUP_CODE_UNAVAILABLE", error.message);
     console.error("No se pudo crear pedido de cliente", error instanceof Error ? error.name : "SIN_DETALLE");
     return clientError(request, 503, "SERVICE_UNAVAILABLE", "No se pudo registrar el pedido");
   }

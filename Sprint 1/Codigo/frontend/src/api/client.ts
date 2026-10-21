@@ -9,7 +9,7 @@ export type OrderConfirmation = { orderId: string; pickupCode: string; state: 'P
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AllInstant', ...init?.headers },
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AlInstant', ...init?.headers },
     ...init,
   })
   if (!response.ok) {

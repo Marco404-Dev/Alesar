@@ -9,8 +9,8 @@ function request(headers: Record<string, string> = {}) {
 describe("protección de escrituras locales", () => {
   it("exige origen, tipo JSON y encabezado contra solicitudes cruzadas", () => {
     expect(operationsAccess(request(), "smp", "dispatch", true)).toBe(false);
-    expect(operationsAccess(request({ origin: "http://evil.test", "content-type": "application/json", "x-requested-with": "AllInstant" }), "smp", "dispatch", true)).toBe(false);
-    expect(operationsAccess(request({ origin: "http://127.0.0.1:3000", "content-type": "application/json", "x-requested-with": "AllInstant", "sec-fetch-site": "same-origin" }), "smp", "dispatch", true)).toBe(true);
+    expect(operationsAccess(request({ origin: "http://evil.test", "content-type": "application/json", "x-requested-with": "AlInstant" }), "smp", "dispatch", true)).toBe(false);
+    expect(operationsAccess(request({ origin: "http://127.0.0.1:3000", "content-type": "application/json", "x-requested-with": "AlInstant", "sec-fetch-site": "same-origin" }), "smp", "dispatch", true)).toBe(true);
   });
 
   it("firma token por sede, exige cookie y expira/impide alteración", () => {

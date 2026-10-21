@@ -1,4 +1,4 @@
--- AllInstant / Sprint 1 / T02.6
+-- AlInstant / Sprint 1 / T02.6
 -- Reversión estructural protegida. No borra datos de catálogo ni de disponibilidad.
 -- Ejecutar solo en development y solo si la comprobación previa confirma cero filas.
 

@@ -1,4 +1,4 @@
-# Frontend cliente AllInstant
+# Frontend cliente AlInstant
 
 ## Desarrollo integrado
 

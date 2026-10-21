@@ -23,7 +23,7 @@ export function clientWriteAllowed(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
   return !!origin && allowedOrigins(request).includes(origin) &&
     request.headers.get("content-type")?.split(";", 1)[0].trim() === "application/json" &&
-    request.headers.get("x-requested-with") === "AllInstant" &&
+    request.headers.get("x-requested-with") === "AlInstant" &&
     (!request.headers.get("sec-fetch-site") || request.headers.get("sec-fetch-site") !== "cross-site");
 }
 

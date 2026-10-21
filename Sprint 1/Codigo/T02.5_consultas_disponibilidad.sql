@@ -1,4 +1,4 @@
--- AllInstant | HU-02 | T02.5
+-- AlInstant | HU-02 | T02.5
 -- Consultas de SOLO LECTURA para Neon PostgreSQL, rama development, base neondb.
 -- Requisito: esquema T11.2 y migracion 03_disponibilidad_producto_sede.sql.
 -- Ejecutar cada consulta por separado para capturar los resultados en Neon.

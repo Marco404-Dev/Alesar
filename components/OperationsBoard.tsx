@@ -50,7 +50,7 @@ export default function OperationsBoard({ site, siteName, mode, testOrdersEnable
       const { token } = await tokenResponse.json();
       const response = await fetch(`/api/operations/${site}/orders/${orderId}`, {
         method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "AllInstant", "X-CSRF-Token": token },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "AlInstant", "X-CSRF-Token": token },
         body: JSON.stringify({ action, ...(action === "deliver" ? { pickupCode } : {}) }),
       });
       const data = await response.json();
@@ -72,7 +72,7 @@ export default function OperationsBoard({ site, siteName, mode, testOrdersEnable
       const { token } = await tokenResponse.json();
       const response = await fetch(`/api/operations/${site}/test-orders`, {
         method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "AllInstant", "X-CSRF-Token": token },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "AlInstant", "X-CSRF-Token": token },
         body: "{}",
       });
       const data = await response.json();
@@ -85,7 +85,7 @@ export default function OperationsBoard({ site, siteName, mode, testOrdersEnable
 
   return <main className="operations">
     <header className="operations-header">
-      <div className="operations-brand"><span className="operations-brand-mark">A</span><span>AllInstant <b>×</b> ALESAR</span></div>
+      <div className="operations-brand"><span className="operations-brand-mark">A</span><span>AlInstant <b>×</b> ALESAR</span></div>
       <div className="operations-place"><span>{mode === "dispatch" ? "Despacho" : "Control de cocina"}</span><strong>{snapshot?.siteName || siteName}</strong></div>
     </header>
     <div className="operations-content">
@@ -111,7 +111,7 @@ export default function OperationsBoard({ site, siteName, mode, testOrdersEnable
           {selected ? <><p className="operations-eyebrow">DETALLE DEL PEDIDO</p><h2 id="detail-title">Pedido #{selected.id}</h2>
             {mode === "dispatch" && <dl className="operations-facts"><div><dt>Cliente</dt><dd>{(selected as DispatchOrder).customer}</dd></div><div><dt>Confirmado</dt><dd>{formatOrderTime((selected as DispatchOrder).confirmedAt)}</dd></div><div><dt>Estado</dt><dd>{states[(selected as DispatchOrder).state]}</dd></div><div><dt>Código de recojo</dt><dd className="operations-code">{(selected as DispatchOrder).pickupCode}</dd></div></dl>}
             <h3>Productos</h3><ul className="operations-products">{selected.products.map((product, index) => <li key={index}><span>{product.name}</span><strong>× {product.quantity}</strong></li>)}</ul>
-            {mode === "control" ? <button className="operations-primary" disabled={busy || !connected || !!selected.preparationFinishedAt} onClick={() => perform(selected.id, "finish")}>{selected.preparationFinishedAt ? "Preparación ya comunicada" : busy ? "Guardando…" : "Preparación terminada"}</button> : (selected as DispatchOrder).state === "PREPARANDO" ? <button className="operations-primary" disabled={busy || !connected || !selected.preparationFinishedAt} onClick={() => perform(selected.id, "ready")}>{busy ? "Confirmando…" : "Confirmar listo"}</button> : (selected as DispatchOrder).state === "LISTO_RECOJO" ? <form onSubmit={event => { event.preventDefault(); void perform(selected.id, "deliver"); }}><label htmlFor="pickup-code">Código proporcionado por el cliente</label><input id="pickup-code" value={pickupCode} onChange={event => setPickupCode(event.target.value)} autoComplete="off" required maxLength={20} /><button className="operations-primary" disabled={busy || !connected || !pickupCode}>{busy ? "Registrando…" : "Confirmar entrega"}</button></form> : <p className="operations-quiet">Esperando preparación de cocina.</p>}
+            {mode === "control" ? <button className="operations-primary" disabled={busy || !connected || !!selected.preparationFinishedAt} onClick={() => perform(selected.id, "finish")}>{selected.preparationFinishedAt ? "Preparación ya comunicada" : busy ? "Guardando…" : "Preparación terminada"}</button> : (selected as DispatchOrder).state === "PREPARANDO" ? <button className="operations-primary" disabled={busy || !connected || !selected.preparationFinishedAt} onClick={() => perform(selected.id, "ready")}>{busy ? "Confirmando…" : "Confirmar listo"}</button> : (selected as DispatchOrder).state === "LISTO_RECOJO" ? <form onSubmit={event => { event.preventDefault(); void perform(selected.id, "deliver"); }}><label htmlFor="pickup-code">Código de 3 caracteres (o código histórico)</label><input id="pickup-code" value={pickupCode} onChange={event => setPickupCode(event.target.value.toUpperCase())} autoComplete="off" autoCapitalize="characters" required maxLength={20} placeholder="A7K" /><button className="operations-primary" disabled={busy || !connected || !pickupCode}>{busy ? "Registrando…" : "Confirmar entrega"}</button></form> : <p className="operations-quiet">Esperando preparación de cocina.</p>}
             {mode === "dispatch" && (selected as DispatchOrder).state === "PREPARANDO" && !selected.preparationFinishedAt && <p className="operations-quiet">Cocina aún no ha comunicado el fin de preparación.</p>}
           </> : <div className="operations-detail-empty"><h2 id="detail-title">Selecciona un pedido</h2><p>Revisa los datos antes de confirmar una operación.</p></div>}
         </section>

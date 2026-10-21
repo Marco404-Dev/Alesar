@@ -1,12 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 import { CatalogChangedError, parseCartItems } from "../../lib/client-catalog";
-import { CustomerInputError, PaymentRejectedError, createOrderFromPayment, parseCustomer, simulatePayment, storeQuote } from "../../lib/client-checkout";
+import { CustomerInputError, PICKUP_CODE_ALPHABET, PaymentRejectedError, createOrderFromPayment, parseCustomer, pickupCode, simulatePayment, storeQuote } from "../../lib/client-checkout";
 
 const validQuote = () => storeQuote({
   site: "SMP", items: [{ productId: "1", name: "Almuerzo", quantity: 2, unitPrice: "18.00", lineTotal: "36.00" }], total: "36.00",
 });
 
 describe("checkout cliente", () => {
+  it("genera códigos de recojo nuevos de tres caracteres sin ambiguos", () => {
+    const code = pickupCode();
+    expect(code).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{3}$/);
+    expect([...code].every(character => PICKUP_CODE_ALPHABET.includes(character))).toBe(true);
+  });
   it("rechaza productos duplicados y cantidades manipuladas", () => {
     expect(() => parseCartItems([{ productId: "1", quantity: 1 }, { productId: "1", quantity: 2 }])).toThrow();
     expect(() => parseCartItems([{ productId: "1", quantity: 1.5 }])).toThrow();
@@ -42,6 +47,10 @@ describe("checkout cliente", () => {
     const first = await createOrderFromPayment(db as never, payment.paymentId, customer);
     expect(first).toMatchObject({ orderId: "12", state: "PREPARANDO" });
     await expect(createOrderFromPayment(db as never, payment.paymentId, customer)).resolves.toEqual(first);
+    // El rol cliente solo lee estos catálogos de referencia; no requiere
+    // privilegios UPDATE implícitos por un locking clause.
+    expect(client.query.mock.calls[1][0]).not.toContain("FOR KEY SHARE");
+    expect(client.query.mock.calls[3][0]).not.toContain("FOR KEY SHARE");
     expect(client.query.mock.calls[4][0]).toContain("INSERT INTO pedidos");
     expect(client.query.mock.calls[5][0]).toContain("INSERT INTO detalle_pedido");
   });

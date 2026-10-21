@@ -21,16 +21,17 @@ export function database(): Pool {
  */
 export function applicationConnectionString(databaseUrl?: string, directUrl?: string, environment = process.env.NODE_ENV): string {
   if (!databaseUrl) throw new Error("DATABASE_URL no está configurado");
-  if (environment !== "production" && directUrl) return listenConnectionString(databaseUrl, directUrl);
+  if (environment !== "production") return listenConnectionString(databaseUrl, directUrl);
   return databaseUrl;
 }
 
 export function operationalDatabase(role: "control" | "dispatch"): Pool {
   if (!operationalPools[role]) {
-    const connectionString = role === "control" ? process.env.KITCHEN_DATABASE_URL : process.env.DISPATCH_DATABASE_URL;
-    if (!connectionString || connectionString === process.env.DATABASE_URL) {
+    const configuredConnectionString = role === "control" ? process.env.KITCHEN_DATABASE_URL : process.env.DISPATCH_DATABASE_URL;
+    if (!configuredConnectionString || configuredConnectionString === process.env.DATABASE_URL) {
       throw new Error("Se requiere una cuenta PostgreSQL operativa independiente y limitada");
     }
+    const connectionString = applicationConnectionString(configuredConnectionString);
     operationalPools[role] = new Pool({
       connectionString, max: 3, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000,
     });

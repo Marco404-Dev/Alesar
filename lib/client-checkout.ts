@@ -1,4 +1,4 @@
-import { randomUUID, randomBytes } from "node:crypto";
+import { randomUUID, randomInt } from "node:crypto";
 import type { Pool } from "pg";
 import { CatalogChangedError, type ClientSite, type Quote, quoteCart } from "@/lib/client-catalog";
 
@@ -18,6 +18,11 @@ export class PaymentNotFoundError extends Error {}
 export class PaymentRejectedError extends Error {}
 export class PaymentUsedError extends Error {}
 export class CustomerInputError extends Error {}
+export class PickupCodeUnavailableError extends Error {}
+
+export const PICKUP_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export const PICKUP_CODE_LENGTH = 3;
+const PICKUP_CODE_UNIQUE_INDEX = "pedidos_codigo_recojo_activo_sede_uq";
 
 const state = globalThis as typeof globalThis & {
   __allinstantClientQuotes?: Map<string, Quote>;
@@ -62,7 +67,14 @@ export function parseCustomer(value: unknown): Customer {
   return { dni, name: normalizedName, whatsapp: normalizedWhatsapp };
 }
 
-function pickupCode(): string { return `AI-${randomBytes(6).toString("hex").toUpperCase()}`; }
+export function pickupCode(): string {
+  return Array.from({ length: PICKUP_CODE_LENGTH }, () => PICKUP_CODE_ALPHABET[randomInt(PICKUP_CODE_ALPHABET.length)]).join("");
+}
+
+function isPickupCodeCollision(error: unknown): boolean {
+  return !!error && typeof error === "object" && "code" in error && error.code === "23505" &&
+    "constraint" in error && error.constraint === PICKUP_CODE_UNIQUE_INDEX;
+}
 
 export async function createOrderFromPayment(db: Pool, paymentId: unknown, customer: Customer): Promise<CreatedOrder> {
   purge();
@@ -82,16 +94,16 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
   try {
     await client.query("BEGIN");
     const siteResult = await client.query<{ sede_id: string; codigo: "SMP" | "LM"; nombre: string }>(
-      "SELECT sede_id, codigo, nombre FROM sedes WHERE codigo = $1 FOR KEY SHARE", [quote.site]
+      "SELECT sede_id, codigo, nombre FROM sedes WHERE codigo = $1", [quote.site]
     );
     if (siteResult.rowCount !== 1) throw new CatalogChangedError("La sede ya no está disponible");
     const site: ClientSite = { id: String(siteResult.rows[0].sede_id), code: siteResult.rows[0].codigo, name: siteResult.rows[0].nombre };
     // Recalculate under the same transaction: browser and prior quote prices are never trusted.
     const recalculated = await quoteCart(client, site, quote.items.map(item => ({ productId: item.productId, quantity: item.quantity })));
-    const stateResult = await client.query<{ estado_id: number }>("SELECT estado_id FROM estados_pedido WHERE codigo = 'PREPARANDO' FOR KEY SHARE");
+    const stateResult = await client.query<{ estado_id: number }>("SELECT estado_id FROM estados_pedido WHERE codigo = 'PREPARANDO'");
     if (stateResult.rowCount !== 1) throw new CatalogChangedError("El estado inicial no está configurado");
     let inserted: { pedido_id: string; codigo_recojo: string; confirmado_en: Date | string } | undefined;
-    for (let attempt = 0; attempt < 3 && !inserted; attempt++) {
+    for (let attempt = 0; attempt < 16 && !inserted; attempt++) {
       try {
         const result = await client.query<{ pedido_id: string; codigo_recojo: string; confirmado_en: Date | string }>(
           `INSERT INTO pedidos (codigo_recojo, sede_id, dni_cliente, nombre_cliente, whatsapp_cliente, estado_id, pago_confirmado)
@@ -101,10 +113,10 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
         );
         inserted = result.rows[0];
       } catch (error) {
-        if (!(error && typeof error === "object" && "code" in error && error.code === "23505")) throw error;
+        if (!isPickupCodeCollision(error)) throw error;
       }
     }
-    if (!inserted) throw new Error("No se pudo reservar un código de recojo");
+    if (!inserted) throw new PickupCodeUnavailableError("No se pudo reservar un código de recojo. Inténtalo nuevamente.");
     for (const item of recalculated.items) {
       await client.query(
         "INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario) VALUES ($1, $2, $3, $4)",

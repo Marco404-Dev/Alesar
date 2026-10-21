@@ -3,7 +3,7 @@ import "./globals.css";
 import "./operations.css";
 
 export const metadata: Metadata = {
-  title: "Operaciones | AllInstant ALESAR",
+  title: "Operaciones | AlInstant ALESAR",
   description: "Cocina y despacho por sede",
   robots: { index: false, follow: false },
 };

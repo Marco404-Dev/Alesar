@@ -30,7 +30,7 @@ describe("rutas públicas cliente", () => {
 
   it("bloquea escrituras cross-site antes de leer o cotizar", async () => {
     const response = await quote(new NextRequest("http://localhost:3000/api/client/checkout/quote", {
-      method: "POST", body: "{bad", headers: { origin: "https://evil.example", "content-type": "application/json", "x-requested-with": "AllInstant", "sec-fetch-site": "cross-site" },
+      method: "POST", body: "{bad", headers: { origin: "https://evil.example", "content-type": "application/json", "x-requested-with": "AlInstant", "sec-fetch-site": "cross-site" },
     }));
     expect(response.status).toBe(403);
     expect(mocks.database).not.toHaveBeenCalled();
@@ -39,7 +39,7 @@ describe("rutas públicas cliente", () => {
   it("devuelve una cotización server-side sin aceptar precios del navegador", async () => {
     const response = await quote(new NextRequest("http://localhost:3000/api/client/checkout/quote", {
       method: "POST", body: JSON.stringify({ site: "SMP", items: [{ productId: "1", quantity: 1, unitPrice: "0.01" }] }),
-      headers: { origin: "http://localhost:5173", "content-type": "application/json", "x-requested-with": "AllInstant", "sec-fetch-site": "same-site" },
+      headers: { origin: "http://localhost:5173", "content-type": "application/json", "x-requested-with": "AlInstant", "sec-fetch-site": "same-site" },
     }));
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ quoteId: "quote-1", site: "SMP", items: [], total: "18.00" });

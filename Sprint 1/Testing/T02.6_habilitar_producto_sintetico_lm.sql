@@ -1,4 +1,4 @@
--- AllInstant / Sprint 1 / T02.6
+-- AlInstant / Sprint 1 / T02.6
 -- Habilitación controlada para prueba E2E en Neon development, base neondb.
 -- Solo afecta el producto sintético identificado y la sede LM; no cambia precio ni metadata.
 

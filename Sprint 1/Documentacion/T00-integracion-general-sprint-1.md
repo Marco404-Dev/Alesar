@@ -1,5 +1,19 @@
 # T00 — Integración general del Sprint 1
 
+## Auditoría externa complementaria (21-10-2026)
+
+Se auditó estáticamente el archivo no rastreado `AllInstant-proyecto.zip` sin
+ejecutarlo ni extraerlo. Es una aplicación independiente React/Vite + Express +
+Prisma, no una versión paralela compatible de esta integración Next.js + `pg`.
+Su esquema, los códigos `smp`/`molina`, la creación previa al pago y las
+transiciones operativas contradicen los contratos actuales. No se incorporó
+código, configuración, migraciones ni dependencias del ZIP. El detalle,
+matriz y decisiones están en `T00-auditoria-alinstant-proyecto.md`.
+
+No aporta una corrección al 503: no usa Neon ni distingue pooler/conexión
+directa. La validación HTTP real y el E2E documentados abajo permanecen
+pendientes.
+
 Actualizado: 18 de octubre de 2026. Este documento define la primera fase de integración; no aplica migraciones ni implementa endpoints.
 
 ## Objetivo y evidencia auditada
@@ -135,3 +149,42 @@ Vite apunta por defecto a `http://127.0.0.1:3000` y admite
 El sandbox de ejecución no pudo resolver DNS de los endpoints Neon, por lo que
 no fue posible una respuesta HTTP local real. La validación a repetir en el
 navegador está documentada en el README del frontend.
+
+### Validación E2E real y corrección de permisos (21-10-2026)
+
+La validación posterior se realizó desde Windows con Next en
+`127.0.0.1:3000`, Vite en `127.0.0.1:5173` y la rama Neon autorizada
+`allinstant-dev/development/neondb`. Se verificó por HTTP real que
+`GET /api/client/catalog?site=LM` devuelve `200`, una fila disponible y el
+producto sintético ID 5 a `18.00`; `site=SMP` devuelve `200` con una fila
+agotada. No se devolvieron secretos ni URLs de conexión.
+
+La causa raíz del 503 fue doble y queda corregida. Primero, la cuenta servidor
+`allinstant_t114_read_app` heredaba los privilegios definidos antes de T02.6 y
+no podía leer `catalogo_producto` ni `disponibilidad_producto_sede` (PostgreSQL
+`42501`). Después, el checkout fallaba porque su trigger histórico requería
+INSERT en `historial_estados_pedido`, y porque `FOR KEY SHARE` exigía permiso
+de bloqueo sobre los catálogos de referencia. El script aditivo
+`Codigo/T00_privilegios_cliente_integracion.sql` crea el grupo NOLOGIN
+`allinstant_t00_client`, se lo concede solo a esa cuenta de servidor y limita
+sus capacidades a lectura de catálogo/estados, INSERT de pedido, detalle e
+historial, y las tres secuencias estrictamente necesarias. No concede
+UPDATE/DELETE ni modifica cocina, despacho o production. El checkout dejó de
+usar bloqueos de fila sobre `sedes` y `estados_pedido`, que son referencias
+leídas y ya protegidas por claves foráneas.
+
+El E2E visual con datos sintéticos produjo el pedido LM `27`: catálogo remoto,
+carrito, cotización, pago simulado, alta `PREPARANDO`, aviso de cocina,
+confirmación `LISTO_RECOJO` desde despacho y entrega con código válido. La
+consulta posterior confirmó `ENTREGADO`, pago confirmado, una línea de detalle
+y tres eventos de historial (`PREPARANDO`, `LISTO_RECOJO`, `ENTREGADO`).
+Cocina se actualizó por SSE y retiró el pedido al comunicar la preparación;
+despacho recibió el aviso por SSE y sus listas quedaron vacías tras entregar.
+No se grabó video: las capturas de automatización fueron temporales y no se
+presentan como evidencia audiovisual.
+
+Verificaciones posteriores al cambio: `npm run typecheck` correcto y cinco
+archivos Vitest focalizados, 20/20 pruebas aprobadas (conexión, checkout,
+rutas cliente, ruta operativa y SSE). Una recarga de despacho abrió una nueva
+conexión SSE y recuperó la foto vacía posterior a la entrega; falta únicamente
+una prueba ante una desconexión de red real y las revisiones previas a publicar.

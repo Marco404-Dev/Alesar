@@ -1,4 +1,4 @@
--- AllInstant / Sprint 1 / T02.6
+-- AlInstant / Sprint 1 / T02.6
 -- Destino autorizado: Neon allinstant-dev, rama development, base neondb.
 -- Migración aditiva, atómica e idempotente. No modificar ni ejecutar en production.
 -- Recuperación: conservar este archivo y usar T02.6_reversion_catalogo_integracion.sql

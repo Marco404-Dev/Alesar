@@ -18,7 +18,7 @@ const context = (site: string) => ({ params: Promise.resolve({ site }) });
 function request(token?: string) {
   return new NextRequest("http://localhost:3000/api/operations/smp/test-orders", {
     method: "POST", body: "{}", headers: {
-      origin: "http://localhost:3000", "content-type": "application/json", "x-requested-with": "AllInstant",
+      origin: "http://localhost:3000", "content-type": "application/json", "x-requested-with": "AlInstant",
       ...(token ? { "x-csrf-token": token, cookie: `alesar_csrf=${token}` } : {}),
     },
   });
