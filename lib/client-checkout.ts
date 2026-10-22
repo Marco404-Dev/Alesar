@@ -1,5 +1,5 @@
 import { randomUUID, randomInt } from "node:crypto";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 import { CatalogChangedError, type ClientSite, type Quote, quoteCart } from "@/lib/client-catalog";
 
 const QUOTE_TTL_MS = 10 * 60 * 1000;
@@ -7,7 +7,7 @@ const PAYMENT_TTL_MS = 10 * 60 * 1000;
 type PaymentMethod = "YAPE" | "CARD";
 type PaymentOutcome = "approved" | "rejected";
 type Payment = {
-  id: string; quoteId: string; status: PaymentOutcome; expiresAt: number; consumed: boolean;
+  id: string; quoteId: string; status: PaymentOutcome; expiresAt: number; consumed: boolean; processing: boolean;
   order?: CreatedOrder;
 };
 export type Customer = { dni: string; name: string; whatsapp: string };
@@ -23,6 +23,7 @@ export class PickupCodeUnavailableError extends Error {}
 export const PICKUP_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const PICKUP_CODE_LENGTH = 3;
 const PICKUP_CODE_UNIQUE_INDEX = "pedidos_codigo_recojo_activo_sede_uq";
+const PICKUP_CODE_SAVEPOINT = "pickup_code_attempt";
 
 const state = globalThis as typeof globalThis & {
   __allinstantClientQuotes?: Map<string, Quote>;
@@ -34,7 +35,7 @@ const payments = state.__allinstantClientPayments ||= new Map<string, Payment>()
 function purge(): void {
   const now = Date.now();
   for (const [id, quote] of quotes) if (quote.expiresAt <= now) quotes.delete(id);
-  for (const [id, payment] of payments) if (payment.expiresAt <= now && !payment.consumed) payments.delete(id);
+  for (const [id, payment] of payments) if (payment.expiresAt <= now && !payment.consumed && !payment.processing) payments.delete(id);
 }
 
 export function storeQuote(quote: Omit<Quote, "id" | "expiresAt">): Quote {
@@ -51,7 +52,7 @@ export function simulatePayment(quoteId: unknown, method: unknown, outcome: unkn
   if (outcome !== "approved" && outcome !== "rejected") throw new CustomerInputError("Resultado de pago no válido");
   const existing = [...payments.values()].find(payment => payment.quoteId === quoteId && payment.status === outcome && !payment.consumed);
   if (existing) return { paymentId: existing.id, status: existing.status };
-  const payment: Payment = { id: randomUUID(), quoteId, status: outcome, expiresAt: Date.now() + PAYMENT_TTL_MS, consumed: false };
+  const payment: Payment = { id: randomUUID(), quoteId, status: outcome, expiresAt: Date.now() + PAYMENT_TTL_MS, consumed: false, processing: false };
   payments.set(payment.id, payment);
   return { paymentId: payment.id, status: payment.status };
 }
@@ -85,13 +86,16 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
   // Un reintento de la misma confirmación devuelve el resultado original en
   // vez de generar una segunda orden. El token sigue siendo de un solo uso.
   if (payment.order) return payment.order;
-  if (payment.consumed) throw new PaymentUsedError("El pago ya está siendo procesado");
+  if (payment.consumed || payment.processing) throw new PaymentUsedError("El pago ya está siendo procesado");
   const quote = quotes.get(payment.quoteId);
   if (!quote || quote.expiresAt <= Date.now()) throw new PaymentNotFoundError("La cotización venció");
-  // Claim the one-time payment before opening the transaction; restore it if PostgreSQL rejects the operation.
-  payment.consumed = true;
-  const client = await db.connect();
+  payment.processing = true;
+  let client: PoolClient | undefined;
   try {
+    client = await db.connect();
+    // The connection is acquired before consuming the payment. `processing`
+    // still prevents concurrent requests from claiming the same payment.
+    payment.consumed = true;
     await client.query("BEGIN");
     const siteResult = await client.query<{ sede_id: string; codigo: "SMP" | "LM"; nombre: string }>(
       "SELECT sede_id, codigo, nombre FROM sedes WHERE codigo = $1", [quote.site]
@@ -104,6 +108,7 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
     if (stateResult.rowCount !== 1) throw new CatalogChangedError("El estado inicial no está configurado");
     let inserted: { pedido_id: string; codigo_recojo: string; confirmado_en: Date | string } | undefined;
     for (let attempt = 0; attempt < 16 && !inserted; attempt++) {
+      await client.query(`SAVEPOINT ${PICKUP_CODE_SAVEPOINT}`);
       try {
         const result = await client.query<{ pedido_id: string; codigo_recojo: string; confirmado_en: Date | string }>(
           `INSERT INTO pedidos (codigo_recojo, sede_id, dni_cliente, nombre_cliente, whatsapp_cliente, estado_id, pago_confirmado)
@@ -112,8 +117,13 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
           [pickupCode(), site.id, customer.dni, customer.name, customer.whatsapp, stateResult.rows[0].estado_id]
         );
         inserted = result.rows[0];
+        await client.query(`RELEASE SAVEPOINT ${PICKUP_CODE_SAVEPOINT}`);
       } catch (error) {
         if (!isPickupCodeCollision(error)) throw error;
+        // A unique-constraint violation aborts the current PostgreSQL
+        // subtransaction. Roll it back before attempting another code.
+        await client.query(`ROLLBACK TO SAVEPOINT ${PICKUP_CODE_SAVEPOINT}`);
+        await client.query(`RELEASE SAVEPOINT ${PICKUP_CODE_SAVEPOINT}`);
       }
     }
     if (!inserted) throw new PickupCodeUnavailableError("No se pudo reservar un código de recojo. Inténtalo nuevamente.");
@@ -130,10 +140,11 @@ export async function createOrderFromPayment(db: Pool, paymentId: unknown, custo
     };
     return payment.order;
   } catch (error) {
-    await client.query("ROLLBACK").catch(() => undefined);
+    await client?.query("ROLLBACK").catch(() => undefined);
     payment.consumed = false;
     throw error;
   } finally {
-    client.release();
+    payment.processing = false;
+    client?.release();
   }
 }
