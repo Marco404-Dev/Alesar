@@ -13,3 +13,5 @@ Esta carpeta está destinada a evidencias de ejecución: capturas de pantalla, v
 | Sin clasificación confirmada | [`video4452161113.mp4` en `main`](https://github.com/Marco404-Dev/Alesar/blob/main/Sprint%201/Pruebas/videos/video4452161113.mp4) | Archivo conservado sin atribuirlo a una historia de usuario. |
 
 No se identificó una captura, video o informe de resultados etiquetado como HU-02 en el árbol de `main`; sus SQL de prueba y verificación no se presentan como evidencias. Tampoco hay capturas o informes archivados de la verificación posterior a T11.3 ni de la suite automatizada. Los resultados reportados y sus límites constan en la [documentación técnica T11.3](../Documentacion/T11.3-implementacion-monitor-cocina.md). Los MP4 se indexan por nombre y ubicación; su contenido no se revisó durante esta actualización.
+
+La arquitectura y plan de futuras pruebas extremo a extremo cliente–operación está en [T00](../Documentacion/T00-integracion-general-sprint-1.md); no constituye evidencia de ejecución.

@@ -1,4 +1,4 @@
--- AllInstant T11.2: pruebas de desarrollo; todos los datos se revierten.
+-- AlInstant T11.2: pruebas de desarrollo; todos los datos se revierten.
 -- Requiere haber ejecutado 01_esquema_postgresql.sql.
 BEGIN;
 INSERT INTO productos(nombre) VALUES ('Menú de prueba'),('Bebida de prueba');

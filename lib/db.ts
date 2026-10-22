@@ -6,19 +6,32 @@ let testOrdersPool: Pool | undefined;
 
 export function database(): Pool {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error("DATABASE_URL no está configurado");
+    const connectionString = applicationConnectionString(
+      process.env.DATABASE_URL, process.env.DATABASE_LISTEN_URL, process.env.NODE_ENV,
+    );
     pool = new Pool({ connectionString, max: 5, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000 });
   }
   return pool;
 }
 
+/**
+ * El pooler es la opción normal de una aplicación web. En development, Neon
+ * puede tenerlo deshabilitado; en ese caso se reutiliza solamente la URL
+ * directa ya configurada para LISTEN, tras comprobar que es la misma base.
+ */
+export function applicationConnectionString(databaseUrl?: string, directUrl?: string, environment = process.env.NODE_ENV): string {
+  if (!databaseUrl) throw new Error("DATABASE_URL no está configurado");
+  if (environment !== "production") return listenConnectionString(databaseUrl, directUrl);
+  return databaseUrl;
+}
+
 export function operationalDatabase(role: "control" | "dispatch"): Pool {
   if (!operationalPools[role]) {
-    const connectionString = role === "control" ? process.env.KITCHEN_DATABASE_URL : process.env.DISPATCH_DATABASE_URL;
-    if (!connectionString || connectionString === process.env.DATABASE_URL) {
+    const configuredConnectionString = role === "control" ? process.env.KITCHEN_DATABASE_URL : process.env.DISPATCH_DATABASE_URL;
+    if (!configuredConnectionString || configuredConnectionString === process.env.DATABASE_URL) {
       throw new Error("Se requiere una cuenta PostgreSQL operativa independiente y limitada");
     }
+    const connectionString = applicationConnectionString(configuredConnectionString);
     operationalPools[role] = new Pool({
       connectionString, max: 3, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000,
     });

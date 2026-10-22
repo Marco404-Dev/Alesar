@@ -1,3 +1,21 @@
+# Frontend cliente AlInstant
+
+## Desarrollo integrado
+
+En una terminal, desde la raíz, iniciar Next.js con `npm run dev`. Debe quedar
+en `http://127.0.0.1:3000`; el comando falla si ese puerto está ocupado, para
+evitar que Vite apunte a un puerto distinto sin avisar. En una segunda terminal,
+desde esta carpeta, ejecutar `npm run dev`. Vite queda en
+`http://127.0.0.1:5173` y reenvía `/api` a Next.js.
+
+Si se necesita un puerto de Next distinto, en PowerShell iniciar Vite con
+`$env:VITE_DEV_API_TARGET='http://127.0.0.1:PUERTO'; npm run dev`.
+`VITE_API_BASE_URL` solo puede contener la URL pública de la API; nunca una
+URL o secreto de Neon.
+
+El catálogo real se obtiene de `/api/client/catalog?site=LM|SMP`; no hay datos
+de producto hardcodeados en el navegador.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

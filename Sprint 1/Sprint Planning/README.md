@@ -1,6 +1,6 @@
 # Sprint Planning — Sprint 1
 
-**Proyecto:** AllInstant — ALESAR  
+**Proyecto:** AlInstant — ALESAR  
 **Metodología:** Scrum  
 **Técnica de descomposición:** Task Breakdown (descomposición funcional de tareas)  
 **Fecha de inicio:** 15 de octubre de 2026  
@@ -167,7 +167,7 @@ Los responsables específicos, la capacidad efectiva del equipo y los acuerdos d
 
 **Referencias:**
 
-- Documento *Historias de Usuario v2* del proyecto AllInstant.
+- Documento *Historias de Usuario v2* del proyecto AlInstant.
 - [Repositorio GitHub — Alesar](https://github.com/Marco404-Dev/Alesar)
 - Tareas registradas en GitHub Issues para el Sprint 1.
 

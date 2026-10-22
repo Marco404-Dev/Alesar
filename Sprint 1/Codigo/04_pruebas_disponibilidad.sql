@@ -1,4 +1,4 @@
--- AllInstant / T02.2: pruebas controladas, con ROLLBACK final.
+-- AlInstant / T02.2: pruebas controladas, con ROLLBACK final.
 -- Ejecutar DESPUÉS de 03_disponibilidad_producto_sede.sql.
 BEGIN;
 

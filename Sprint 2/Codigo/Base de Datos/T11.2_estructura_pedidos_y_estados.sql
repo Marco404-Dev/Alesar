@@ -1,4 +1,4 @@
--- AllInstant / T11.2 / PostgreSQL 14+
+-- AlInstant / T11.2 / PostgreSQL 14+
 -- Ejecutar en una base de datos de desarrollo vacía.
 BEGIN;
 

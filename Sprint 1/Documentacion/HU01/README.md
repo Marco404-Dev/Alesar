@@ -1,6 +1,6 @@
 # HU-01 — Realizar un pedido anticipado para recojo
 
-**Proyecto:** AllInstant — ALESAR  
+**Proyecto:** AlInstant — ALESAR  
 **Sprint:** 1
 
 ## Descripción
@@ -31,7 +31,7 @@ La HU-01 permite al cliente seleccionar una sede de ALESAR, consultar el catálo
 
 React, TypeScript, Vite y CSS.
 
-**Código:** [Frontend de AllInstant](../../Codigo/frontend/).
+**Código:** [Frontend de AlInstant](../../Codigo/frontend/).
 
 ## Evidencia de funcionamiento
 

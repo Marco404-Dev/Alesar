@@ -1,4 +1,4 @@
--- AllInstant / T02.2
+-- AlInstant / T02.2
 -- Ejecutar SOLO en Neon > rama development > base neondb.
 -- Requiere las tablas sedes y productos ya creadas en T11.2.
 BEGIN;

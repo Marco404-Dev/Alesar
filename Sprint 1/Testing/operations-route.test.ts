@@ -39,7 +39,7 @@ describe("endpoint de transición operativa", () => {
     const request = new NextRequest("http://localhost:3000/api/operations/smp/orders/8", {
       method: "POST", body: JSON.stringify({ action: "ready" }), headers: {
         origin: "http://localhost:3000", "content-type": "application/json",
-        "x-requested-with": "AllInstant", "x-csrf-token": token, cookie: `alesar_csrf=${token}`,
+        "x-requested-with": "AlInstant", "x-csrf-token": token, cookie: `alesar_csrf=${token}`,
       },
     });
     const response = await POST(request, context("smp", "8"));
